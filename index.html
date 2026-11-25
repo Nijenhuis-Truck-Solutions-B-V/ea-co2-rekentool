@@ -4,980 +4,431 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CO₂-reductie rekentool — eTruck Academy®</title>
+<link rel="icon" href="etruck-academy-beeldmerk.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<!-- Canon-styling: integrale kopie uit etruck-canon (css/). Niet aanpassen; tool-eigen opmaak hieronder. -->
+<link rel="stylesheet" href="css/etruck-tokens.css" />
+<link rel="stylesheet" href="css/etruck.css" />
 <style>
-  :root {
-    --eta-purple-900: #2e2343;
-    --eta-purple-800: #3a2d55;
-    --eta-purple-700: #41315f;
-    --eta-yellow-500: #f9bc13;
-    --eta-yellow-600: #f2b400;
-    --eta-orange-500: #f6a119;
+  /* Tool-eigen opmaak — CO₂-reductie rekentool.
+     Werkbank-profiel (canon §17). Alleen canon-tokens (--eta-*), geen eigen hexkleuren.
+     Grafiek: aandrijvingen in de vaste reekskleuren (canon §17.2); het break-even punt is
+     geen aandrijving en krijgt paars (eerste kleur van de canon-volgorde) met een streeplijn. */
 
-    --eta-white: #ffffff;
-    --eta-offwhite: #f4f4f6;
-    --eta-cream: #f7f3ec;
-    --eta-bg-page: #f7f7f9;
-    --eta-bg-card: #ffffff;
-    --eta-bg-soft: #f4f4f6;
-
-    --eta-border-soft: #dedee6;
-    --eta-border-strong: #c9c8d3;
-
-    --eta-text-main: #1a1a1f;
-    --eta-text-subtle: #5a5764;
-    --eta-text-muted: #7b7886;
-    --eta-text-on-dark: rgba(255, 255, 255, 0.82);
-
-    --eta-success: #1f7a46;
-    --eta-warning: #b26a00;
-    --eta-danger: #b42318;
-
-    --eta-radius-sm: 10px;
-    --eta-radius-md: 14px;
-    --eta-radius-lg: 18px;
-    --eta-radius-xl: 24px;
-
-    --eta-shadow-card: 0 8px 24px rgba(46, 35, 67, 0.08);
-    --eta-shadow-soft: 0 4px 12px rgba(46, 35, 67, 0.05);
-    --eta-shadow-hero: 0 24px 60px rgba(46, 35, 67, 0.16);
+  /* ---------- Appbalk, intro ---------- */
+  .appbar .brand-lockup { margin-bottom: 0; }
+  .appbar-titel {
+    font-size: var(--eta-font-24);
+    line-height: 1.15;
+    letter-spacing: 0;
   }
-
-  * { box-sizing: border-box; }
-
-  html { background: var(--eta-bg-page); }
-  body {
-    margin: 0;
-    font-family: "Titillium Web", "Montserrat", "Nunito Sans", Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.55;
-    color: var(--eta-text-main);
-    background: var(--eta-bg-page);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  h1, h2, h3, h4, legend { margin: 0; line-height: 1.15; color: var(--eta-purple-900); }
-  h1 { font-size: clamp(2rem, 3.6vw, 2.75rem); font-weight: 700; letter-spacing: -0.01em; }
-  h2 { font-size: 1.5rem; font-weight: 700; }
-  h3 { font-size: 1.15rem; font-weight: 600; }
-
-  a { color: var(--eta-purple-900); }
-  a:hover { color: var(--eta-orange-500); }
-
-  .page-shell {
-    width: min(1180px, calc(100% - 32px));
-    margin: 0 auto;
-    padding: 28px 0 56px;
-  }
-
-  /* ------------ Hero ------------ */
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.85fr);
-    gap: 24px;
-    margin-bottom: 32px;
-  }
-  @media (max-width: 899px) {
-    .hero { grid-template-columns: 1fr; }
-  }
-
-  .hero-copy {
-    position: relative;
-    overflow: hidden;
-    padding: 32px;
-    color: #fff;
-    border-radius: var(--eta-radius-xl);
-    background: linear-gradient(135deg, var(--eta-purple-900) 0%, var(--eta-purple-800) 100%);
-    box-shadow: var(--eta-shadow-hero);
-  }
-  .hero-copy::after {
-    content: "";
-    position: absolute;
-    right: -120px; bottom: -120px;
-    width: 280px; height: 280px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(249, 188, 19, 0.22), transparent 70%);
-    pointer-events: none;
-  }
-  .brand-lockup {
-    display: inline-flex; align-items: center; gap: 14px;
-    margin-bottom: 22px;
-  }
-  .brand-logo {
-    width: 64px; height: 64px;
-    display: block;
-    background: #fff;
-    border-radius: 16px;
-    padding: 8px;
-    object-fit: contain;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-  }
-  .brand-context {
-    display: inline-flex; flex-direction: column; gap: 2px;
-  }
-  .brand-context .eyebrow {
-    margin: 0; color: #fff; font-weight: 700;
-    font-size: 0.98rem; letter-spacing: 0.02em;
-  }
-  .brand-context .brand-subline {
-    margin: 2px 0 0; color: rgba(255, 255, 255, 0.72);
-    font-size: 0.88rem;
-  }
-  @media (max-width: 639px) {
-    .brand-logo { width: 54px; height: 54px; padding: 7px; }
-    .brand-lockup { gap: 12px; margin-bottom: 18px; }
-  }
-
-  .hero-copy h1 { color: #fff; max-width: 18ch; }
-  .hero-copy .lead {
-    max-width: 58ch;
-    margin: 16px 0 0;
-    font-size: 1.05rem;
-    color: var(--eta-text-on-dark);
-  }
-  .hero-pills {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    margin-top: 22px;
-  }
-  .hero-pills span {
-    padding: 6px 12px; border-radius: 999px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    color: rgba(255, 255, 255, 0.92);
-    font-size: 0.88rem;
-  }
-
   .data-provenance {
-    margin: 18px 0 0;
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.68);
-    display: inline-flex; align-items: center; gap: 8px;
+    margin: 0;
+    font-size: var(--eta-font-12);
+    color: rgba(255, 255, 255, 0.72);
+    display: inline-flex; align-items: center; gap: var(--eta-space-8);
     flex-wrap: wrap;
+    max-width: 420px;
   }
   .data-provenance .dot {
     width: 8px; height: 8px; border-radius: 50%;
     display: inline-block;
-    background: #a0a0a8;
+    background: var(--eta-text-muted);
   }
-  .data-provenance.is-live .dot    { background: var(--eta-yellow-500); }
+  .data-provenance.is-live .dot     { background: var(--eta-yellow-500); }
   .data-provenance.is-fallback .dot { background: var(--eta-orange-500); }
-  .data-provenance strong {
-    color: rgba(255, 255, 255, 0.92); font-weight: 600;
+  .data-provenance strong { color: var(--eta-white); font-weight: 600; }
+
+  .werkbank-intro {
+    width: min(var(--eta-wb-content-max), calc(100% - 32px));
+    margin: var(--eta-space-16) auto;
+    font-size: var(--eta-font-14);
+    color: var(--eta-text-soft);
   }
 
-  .hero-kpi {
-    padding: 26px 28px;
-    border-radius: var(--eta-radius-xl);
-    background: linear-gradient(180deg, var(--eta-yellow-500) 0%, var(--eta-orange-500) 100%);
-    color: var(--eta-purple-900);
-    display: flex; flex-direction: column; justify-content: center;
-    box-shadow: var(--eta-shadow-hero);
-  }
-  .hero-kpi-label {
-    margin: 0; font-size: 0.95rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.06em;
-  }
-  .hero-kpi-value {
-    margin: 10px 0 2px;
-    font-size: clamp(2.4rem, 5vw, 3.25rem);
-    font-weight: 700; line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .hero-kpi-unit {
-    margin: 0; font-size: 1rem; opacity: 0.88;
-  }
-  .hero-kpi-hint {
-    margin: 14px 0 0; font-size: 0.88rem;
-    color: rgba(46, 35, 67, 0.76);
-    line-height: 1.45;
-  }
-
-  /* ------------ Layout ------------ */
+  /* ---------- Layout ---------- */
   .layout {
     display: grid;
-    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.25fr);
-    gap: 24px;
+    grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+    gap: var(--eta-space-16);
+    align-items: start;
   }
+  .layout > .card { margin: 0; min-width: 0; }
+  .layout > .breed { grid-column: 1 / -1; }
   @media (max-width: 1049px) {
-    .layout { grid-template-columns: 1fr; }
+    .layout { grid-template-columns: minmax(0, 1fr); }
   }
 
-  /* ------------ Panels / cards ------------ */
-  .panel {
-    padding: 24px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-xl);
-    background: var(--eta-bg-card);
-    box-shadow: var(--eta-shadow-soft);
-  }
-  .panel-heading h2 { margin-bottom: 6px; }
-  .panel-heading p {
-    margin: 0; color: var(--eta-text-subtle);
-    font-size: 0.95rem;
-  }
-  /* Export-bar onderaan de tool */
-  .export-bar {
-    margin-top: 32px;
-    padding: 24px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-xl);
-    background: var(--eta-bg-card);
-    box-shadow: var(--eta-shadow-soft);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    text-align: center;
-  }
-  .export-bar .export-pdf-btn { min-width: 240px; }
-  .export-hint {
-    margin: 0;
-    color: var(--eta-text-subtle);
-    font-size: 0.88rem;
-  }
-  .export-hint strong { color: var(--eta-purple-900); }
-  @media (max-width: 639px) {
-    .export-bar .export-pdf-btn { width: 100%; }
-  }
-
-  /* Print-only elements */
-  .print-only { display: none; }
-  .print-stamp {
-    margin: 14px 0 0;
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 10pt;
-  }
-
-  /* ------------ Form ------------ */
-  .form-grid { display: grid; gap: 16px; margin-top: 20px; }
-
-  fieldset {
-    margin: 0;
-    padding: 16px 18px 18px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-lg);
-    background: var(--eta-bg-soft);
-  }
-  legend {
-    padding: 0 6px;
-    font-size: 0.95rem;
-    font-weight: 600;
+  .card-dense .desc { margin-bottom: var(--eta-space-12); }
+  .subkop {
+    margin: var(--eta-space-16) 0 var(--eta-space-8);
+    font-size: var(--eta-font-14);
+    font-weight: 700;
     color: var(--eta-purple-900);
   }
 
-  label {
-    display: grid;
-    gap: 6px;
-    margin-top: 14px;
-  }
-  label:first-of-type { margin-top: 8px; }
-  label span.lbl {
-    font-size: 0.95rem;
+  /* ---------- Invoervelden (groen = jij vult in) ---------- */
+  .fields { grid-template-columns: minmax(0, 1fr) 170px; }
+  .fields label { margin: 0; display: grid; gap: 2px; }
+  .fields label > span { font-weight: 600; color: var(--eta-purple-900); }
+  .fields .helper {
+    font-size: var(--eta-font-12);
+    font-weight: 400;
     color: var(--eta-text-subtle);
-    font-weight: 500;
   }
-  label .helper {
-    font-size: 0.82rem;
-    color: var(--eta-text-muted);
-    margin-top: 2px;
-  }
-
   .input-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0;
-    border: 1px solid var(--eta-border-strong);
-    border-radius: var(--eta-radius-md);
-    background: var(--eta-white);
-    overflow: hidden;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .input-row:focus-within {
-    border-color: var(--eta-yellow-500);
-    box-shadow: 0 0 0 4px rgba(249, 188, 19, 0.18);
+    display: flex; align-items: center; gap: var(--eta-space-4);
+    border-radius: var(--eta-wb-radius-sm);
   }
   .input-row input[type="number"] {
-    width: 100%;
     min-width: 0;
-    padding: 12px 14px;
-    border: 0;
-    background: transparent;
-    font: inherit;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--eta-text-main);
-    outline: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
     -moz-appearance: textfield;
-    min-height: 44px;
   }
   .input-row input[type="number"]::-webkit-outer-spin-button,
-  .input-row input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none; margin: 0;
-  }
-  .input-row .unit {
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 14px;
-    background: var(--eta-offwhite);
-    color: var(--eta-text-subtle);
-    font-weight: 500; font-size: 0.9rem;
-    border-left: 1px solid var(--eta-border-soft);
-    min-width: 52px;
-  }
+  .input-row input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .input-row .unit { min-width: 40px; }
 
+  /* Korte oranje puls als regeneratie wordt begrensd (rgba = --eta-orange-500). */
   @keyframes clampPulse {
     0%   { box-shadow: 0 0 0 0 rgba(246, 161, 25, 0); }
-    25%  { box-shadow: 0 0 0 5px rgba(246, 161, 25, 0.35); }
+    25%  { box-shadow: 0 0 0 4px rgba(246, 161, 25, 0.35); }
     100% { box-shadow: 0 0 0 0 rgba(246, 161, 25, 0); }
   }
   .input-row.clamp-flash { animation: clampPulse .55s ease-out; }
 
-  /* Segmented (WtW / TtW toggle) */
+  .kleurlegenda {
+    margin: var(--eta-space-12) 0 0;
+    font-size: var(--eta-font-12);
+    color: var(--eta-text-subtle);
+    display: flex; flex-wrap: wrap; gap: var(--eta-space-4) var(--eta-space-12);
+  }
+  .kleurlegenda .blok {
+    display: inline-block; width: 12px; height: 12px;
+    border: 1px solid var(--eta-border-strong);
+    border-radius: 3px; vertical-align: -2px; margin-right: var(--eta-space-4);
+  }
+
+  /* Keuze Well-to-Wheel / Tank-to-Wheel */
   .segmented {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    gap: 0;
-    padding: 4px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-md);
+    padding: 3px;
+    border: 1px solid var(--eta-border-strong);
+    border-radius: var(--eta-wb-radius-sm);
     background: var(--eta-white);
-    margin-top: 8px;
   }
   .segmented button {
-    padding: 10px 12px;
+    min-height: 36px;
+    padding: var(--eta-space-4) var(--eta-space-12);
     border: 0;
     background: transparent;
     font: inherit;
-    font-size: 0.92rem;
+    font-size: var(--eta-font-14);
     font-weight: 600;
     color: var(--eta-text-subtle);
     cursor: pointer;
-    border-radius: calc(var(--eta-radius-md) - 4px);
-    transition: background .15s, color .15s;
+    border-radius: 4px;
   }
-  .segmented button[aria-pressed="true"] {
-    background: var(--eta-purple-900);
-    color: #fff;
-  }
-  .segmented button:focus-visible {
-    outline: 3px solid rgba(249, 188, 19, 0.45);
-    outline-offset: 2px;
-  }
+  .segmented button[aria-pressed="true"] { background: var(--eta-purple-900); color: var(--eta-white); }
+  .segmented button:focus-visible { outline: 3px solid var(--eta-yellow-500); outline-offset: 2px; }
+  .modus-hint { margin: var(--eta-space-4) 0 0; font-size: var(--eta-font-12); color: var(--eta-text-subtle); }
 
-  /* Buttons (canon 4.6) */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 8px;
-    min-height: 48px;
-    padding: 0 20px;
-    border: 0;
-    border-radius: 16px;
-    font: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s, box-shadow .15s, transform .05s;
-  }
-  .btn-primary {
-    background: var(--eta-yellow-500);
-    color: var(--eta-purple-900);
-    box-shadow: var(--eta-shadow-soft);
-  }
-  .btn-primary:hover {
-    background: var(--eta-yellow-600);
-    box-shadow: 0 8px 18px rgba(46, 35, 67, 0.10);
-  }
-  .btn-primary:active { transform: translateY(1px); }
-  .btn-primary:focus-visible {
-    outline: 3px solid rgba(46, 35, 67, 0.3);
-    outline-offset: 2px;
-  }
-  .btn-secondary {
-    background: #fff;
-    color: var(--eta-purple-900);
-    border: 1px solid var(--eta-border-strong);
-  }
-  .btn-secondary:hover {
-    background: var(--eta-offwhite);
-    border-color: var(--eta-purple-900);
-  }
+  .checkline { margin-top: var(--eta-space-12); }
+  .input-actions { display: flex; flex-wrap: wrap; gap: var(--eta-space-8); margin-top: var(--eta-space-16); }
+  .input-actions .btn { min-height: 40px; font-size: var(--eta-font-14); }
 
-  .input-actions {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px;
-  }
+  /* ---------- Resultaat ---------- */
+  .kpis { margin-bottom: var(--eta-space-16); gap: var(--eta-space-12); grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .kpi { padding: var(--eta-space-12) var(--eta-space-16); border-radius: var(--eta-wb-radius-card); }
+  .kpi .val { font-size: 1.6rem; }
+  .kpi.hoofd { border: 2px solid var(--eta-yellow-500); background: rgba(249, 188, 19, 0.10); }
+  .kpi.hoofd .val { font-size: 2.2rem; }
 
-  /* ------------ Calc card (results breakdown) ------------ */
-  .calc-card {
-    margin-top: 18px;
-    padding: 18px 20px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-xl);
-    background: linear-gradient(180deg, #ffffff 0%, var(--eta-bg-soft) 100%);
-  }
-  .calc-row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; padding: 12px 0;
-  }
-  .calc-row + .calc-row { border-top: 1px solid rgba(46, 35, 67, 0.08); }
-  .calc-label-group { display: grid; gap: 2px; }
-  .calc-label {
-    font-size: 0.98rem; font-weight: 600; color: var(--eta-purple-900);
-  }
-  .calc-sub {
+  /* Uitwerking als dichte tabel (table.data). Eenheid klein achter het cijfer. */
+  table.data td.num small {
+    margin-left: var(--eta-space-4);
+    font-size: var(--eta-font-12);
     color: var(--eta-text-subtle);
-    font-size: 0.88rem;
+    font-weight: 400;
   }
-  .calc-value {
-    font-variant-numeric: tabular-nums;
-    font-size: 1.25rem; font-weight: 700;
-    color: var(--eta-purple-900);
-    text-align: right; white-space: nowrap;
-  }
-  .calc-value small {
-    display: block; font-size: 0.78rem; font-weight: 500;
-    color: var(--eta-text-subtle); margin-top: 2px;
-  }
-  .calc-row.calc-total {
-    margin-top: 4px;
-    border-top: 2px solid var(--eta-purple-900);
-    padding-top: 14px;
-  }
-  .calc-row.calc-total .calc-value {
-    color: var(--eta-orange-500);
-    font-size: 1.65rem;
-  }
-
-  .calc-section-label {
-    margin: 8px 0 0;
-    padding: 0 4px;
-    font-size: 0.78rem; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--eta-text-muted);
-  }
-
-  /* KPI detail cards */
-  .detail-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-top: 18px;
-  }
-  .detail-card {
-    padding: 16px 18px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-lg);
-    background: var(--eta-white);
-  }
-  .detail-card .kpi-label {
-    display: block;
-    font-size: 0.82rem; font-weight: 600;
-    color: var(--eta-text-subtle);
-    text-transform: uppercase; letter-spacing: 0.05em;
-  }
-  .detail-card .kpi-value {
-    display: block;
-    margin: 8px 0 2px;
-    font-size: 1.65rem; font-weight: 700;
-    color: var(--eta-purple-900);
-    font-variant-numeric: tabular-nums;
-  }
-  .detail-card .kpi-unit {
-    display: block;
-    color: var(--eta-text-subtle);
-    font-size: 0.85rem;
-  }
-
-  /* Assumptions card (canon: 4.1 D — rustig oranje accent) */
-  .assumptions {
-    margin-top: 18px;
-    padding: 18px 20px;
-    border: 1px solid var(--eta-border-soft);
-    border-left: 3px solid var(--eta-orange-500);
-    border-radius: var(--eta-radius-lg);
+  table.data tbody th[scope="row"] { font-weight: 600; }
+  table.data tr.groep th {
     background: var(--eta-bg-soft);
-  }
-  .assumptions h3 { margin-bottom: 8px; }
-  .assumptions ul {
-    margin: 0; padding-left: 18px;
-    color: var(--eta-text-subtle);
-    font-size: 0.92rem; line-height: 1.6;
-  }
-  .assumptions ul li + li { margin-top: 4px; }
-
-  /* Chart card */
-  .chart-card {
-    margin-top: 24px;
-    padding: 22px 24px 16px;
-    border: 1px solid var(--eta-border-soft);
-    border-radius: var(--eta-radius-xl);
-    background: var(--eta-bg-card);
-    box-shadow: var(--eta-shadow-soft);
-  }
-  .chart-card h3 { margin-bottom: 4px; }
-  .chart-card .chart-sub {
-    color: var(--eta-text-subtle);
-    font-size: 0.9rem; margin-bottom: 12px;
-  }
-  svg.chart { width: 100%; height: 300px; display: block; }
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 18px;
-    margin-top: 10px;
-    font-size: 0.88rem; color: var(--eta-text-subtle);
-  }
-  .legend .item { display: inline-flex; align-items: center; gap: 8px; }
-  .legend .sw { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
-
-  /* Sources / footer */
-  .sources {
-    margin-top: 32px; padding-top: 22px;
-    border-top: 1px solid var(--eta-border-soft);
-    color: var(--eta-text-subtle);
-    font-size: 0.9rem; line-height: 1.65;
-  }
-  .sources strong { color: var(--eta-purple-900); display: block; margin-bottom: 4px; font-size: 0.95rem; }
-  .brand-footer {
-    margin-top: 16px;
-    text-align: center;
     color: var(--eta-text-muted);
-    font-size: 0.85rem;
+    font-size: var(--eta-font-12);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
-  .brand-footer strong { color: var(--eta-purple-900); }
+  table.data tbody tr td.cell-param { background: var(--eta-cell-param); }
+  table.data tr.totaal th,
+  table.data tr.totaal td {
+    border-top: 2px solid var(--eta-purple-900);
+    background: rgba(249, 188, 19, 0.10);
+    font-weight: 700;
+  }
+  table.data tr.totaal td.num { font-size: var(--eta-font-16); color: var(--eta-purple-900); }
+  .toelichting { color: var(--eta-text-subtle); }
+
+  /* ---------- Grafiek ---------- */
+  svg.chart { width: 100%; height: 300px; display: block; }
+  .legenda { margin-top: var(--eta-space-8); }
+  .legend-pill .swatch.lijn { width: 18px; height: 4px; border-radius: 2px; }
+  .legend-pill .swatch.streep {
+    width: 18px; height: 0; border-radius: 0;
+    border-top: 2px dashed var(--eta-purple-900);
+  }
+
+  /* ---------- Aannames, bronnen, export ---------- */
+  .aannames ul { margin: 0; padding-left: 18px; color: var(--eta-text-subtle); font-size: var(--eta-font-14); line-height: 1.6; }
+  .aannames ul li + li { margin-top: 2px; }
+  .bronnen { margin: var(--eta-space-12) 0 0; font-size: var(--eta-font-14); color: var(--eta-text-subtle); line-height: 1.6; }
+  .bronnen a { text-decoration: underline; }
+  .bronnen a:hover { color: var(--eta-orange-500); }
+
+  .export-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--eta-space-12); }
+  .export-hint { margin: 0; font-size: var(--eta-font-14); color: var(--eta-text-subtle); }
+  .export-hint strong { color: var(--eta-purple-900); }
+
+  .print-only { display: none; }
 
   @media (max-width: 639px) {
-    .hero-copy { padding: 24px; }
-    .panel { padding: 20px; }
-    .btn { width: 100%; }
+    .fields { grid-template-columns: minmax(0, 1fr); }
+    .export-bar .btn { width: 100%; justify-content: center; }
+    .data-provenance { max-width: none; }
+    /* Smal scherm: toelichting onder het onderdeel, zodat de waarde in beeld blijft. */
+    table.uitwerking, table.uitwerking thead, table.uitwerking tbody { display: block; }
+    table.uitwerking thead th:nth-child(2) { display: none; }
+    table.uitwerking tr { display: grid; grid-template-columns: minmax(0, 1fr) 9.5rem; }
+    table.uitwerking tr.groep { grid-template-columns: minmax(0, 1fr); }
+    table.uitwerking td.toelichting { overflow-wrap: anywhere; }
+    table.uitwerking tbody tr:not(.groep) > th { grid-column: 1; grid-row: 1; }
+    table.uitwerking tbody tr:not(.groep) > td.num { grid-column: 2; grid-row: 1 / span 2; }
+    table.uitwerking tbody tr:not(.groep) > td.toelichting {
+      grid-column: 1; grid-row: 2;
+      font-size: var(--eta-font-12);
+    }
+    table.uitwerking tbody tr:not(.groep) > td.toelichting:empty { display: none; }
   }
 
-  /* ============================================================
-     Print-stylesheet: zorgt dat de tool als nette PDF exporteert.
-     ============================================================ */
+  /* ---------- Print: rustig A4-rapport ---------- */
   @media print {
     @page { size: A4; margin: 12mm; }
-
-    html, body { background: #fff; }
-    body {
-      print-color-adjust: exact;
-      -webkit-print-color-adjust: exact;
-      font-size: 10pt;
-    }
-
-    .page-shell { width: 100%; padding: 0; max-width: none; }
-
-    /* Verbergen op print — duplicate / niet-essentieel voor het rapport */
+    body.werkbank { padding-bottom: 0; }
+    .appbar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
     .no-print,
     .data-provenance,
     .input-actions,
-    .hero-pills,
-    .detail-cards,         /* KPI summary is duplicaat van de breakdown */
-    .assumptions,          /* aannames context, niet kerncijfers */
+    .kleurlegenda,
+    .aannames,
     .export-bar { display: none !important; }
     .segmented button[aria-pressed="false"] { display: none; }
-
     .print-only { display: block; }
-
-    /* ========= PAGINA-INDELING =========
-       Vaste 2-pagina-structuur:
-         Pagina 1: Hero (incl. break-even-tegel) + Invoer-panel
-         Pagina 2: Resultaat-panel (breakdown) + Grafiek + Bronnen
-       ===================================== */
-    .results-panel { page-break-before: always; }
-    .chart-card    { page-break-before: auto; }
-
-    /* HERO — paarse gradient blijft (matcht de tool). */
-    .hero {
-      grid-template-columns: 1.4fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-      page-break-inside: avoid;
-      page-break-after: avoid;
-    }
-    .hero-copy {
-      padding: 18px 20px;
-      box-shadow: none;
-    }
-    .hero-copy::after { display: none; }
-    .hero-copy h1 { font-size: 18pt; max-width: 100%; margin-bottom: 6px; }
-    .hero-copy .lead { font-size: 10pt; margin-top: 8px; }
-    .brand-lockup { margin-bottom: 10px; }
-    .brand-logo { width: 44px; height: 44px; padding: 5px; }
-
-    .hero-kpi {
-      padding: 16px 18px;
-      box-shadow: none;
-      page-break-inside: avoid;
-    }
-    .hero-kpi-label { font-size: 9pt; }
-    .hero-kpi-value { font-size: 28pt; margin: 6px 0 2px; }
-    .hero-kpi-unit { font-size: 10pt; }
-    .hero-kpi-hint { font-size: 8.5pt; margin-top: 8px; }
-
-    /* LAYOUT — alles onder elkaar op A4 */
-    .layout { grid-template-columns: 1fr; gap: 12px; }
-
-    /* PANELS */
-    .panel, .calc-card, .chart-card { box-shadow: none; }
-    .panel { padding: 14px 16px; }
-
-    /* INVOER — fieldsets compacter zodat hero+invoer op pagina 1 passen */
-    fieldset { padding: 12px 14px; page-break-inside: avoid; }
-    label { margin-top: 10px; }
-    label .helper { font-size: 8.5pt; }
-
-    /* RESULTAAT — paneel mag NIET in z'n geheel doorbreken; rijen wel
-       per stuk, maar nooit een sectie-kopje los van zijn rijen. */
-    .results-panel { page-break-inside: auto; }
-    .calc-card {
-      page-break-inside: auto;
-      margin-top: 10px;
-      padding: 12px 14px;
-    }
-    .calc-section-label {
-      margin: 8px 0 2px;
-      font-size: 8pt;
-      page-break-after: avoid;
-      break-after: avoid;
-    }
-    .calc-row {
-      padding: 5px 0;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-    .calc-row .calc-label { font-size: 9.5pt; }
-    .calc-row .calc-sub { font-size: 8pt; }
-    .calc-row .calc-value { font-size: 10.5pt; }
-    .calc-row.calc-total {
-      padding-top: 10px;
-      margin-top: 4px;
-      page-break-before: avoid;
-    }
-    .calc-row.calc-total .calc-value { font-size: 14pt; }
-
-    /* GRAFIEK */
-    .chart-card {
-      padding: 14px 16px 8px;
-      margin-top: 14px;
-      page-break-inside: avoid;
-    }
-    .chart-card h3 { font-size: 11pt; }
-    .chart-card .chart-sub { font-size: 9pt; }
+    .print-stamp { margin: 0; color: rgba(255, 255, 255, 0.78); font-size: 9pt; }
+    .layout { grid-template-columns: 1fr; gap: 10px; width: 100%; }
+    .results-panel { break-before: page; }
+    .kpis { grid-template-columns: repeat(4, 1fr); }
+    table.data tr { break-inside: avoid; }
+    .chart-card { break-inside: avoid; }
     svg.chart { height: 180px; }
-
-    /* BRONNEN + FOOTER */
-    .sources {
-      font-size: 8.5pt;
-      padding-top: 12px;
-      margin-top: 14px;
-      page-break-inside: avoid;
-    }
-    .brand-footer { font-size: 8.5pt; margin-top: 8px; }
-
-    /* Inputs: geen focus-glows op papier */
-    .input-row { box-shadow: none; }
+    .appfooter { background: var(--eta-white); color: var(--eta-text-subtle); border-top: 1px solid var(--eta-border-soft); }
   }
 </style>
 </head>
-<body>
-  <div class="page-shell">
+<body class="werkbank">
 
-    <!-- HERO -->
-    <header class="hero">
-      <div class="hero-copy">
-        <div class="brand-lockup">
-          <img class="brand-logo" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGFhZ18xIiBkYXRhLW5hbWU9IkxhYWcgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxMDgwIDEwODAiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNlZGVkZWQ7CiAgICAgIH0KCiAgICAgIC5jbHMtMSwgLmNscy0yLCAuY2xzLTMsIC5jbHMtNCwgLmNscy01LCAuY2xzLTYsIC5jbHMtNywgLmNscy04IHsKICAgICAgICBzdHJva2Utd2lkdGg6IDBweDsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjZjliYzEzOwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNlY2VjZWM7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogIzJlMjM0MzsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZmZmOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICMyZDIzNDI7CiAgICAgIH0KCiAgICAgIC5jbHMtNyB7CiAgICAgICAgZmlsbDogI2Y2YTExOTsKICAgICAgfQoKICAgICAgLmNscy04IHsKICAgICAgICBmaWxsOiAjZjVhMDE5OwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8Y2lyY2xlIGNsYXNzPSJjbHMtNCIgY3g9IjU0MC43IiBjeT0iNTM4LjciIHI9IjI5MS45Ii8+CiAgPHBhdGggY2xhc3M9ImNscy02IiBkPSJNNjA1LjcsMjI2LjljMTAzLDIwLjksMTk1LjQsOTIuNiwyMzYuNSwxOTAuMSw4MC42LDE4OC43LTQ0LjcsMzk4LjMtMjQxLjcsNDM2LjktMTc1LjYsMzYtMzQ3LjMtNzcuOC0zODEuNS0yNTQuMi00My43LTIzMC44LDE1OS40LTQyMC42LDM4Ni43LTM3Mi44aDBaTTYwNS4zLDIyOC44Yy0xODkuOC00MC41LTM3MS40LDExNi4yLTM3MS44LDMwNy4xLTQuMSwxOTIuMSwxNzYuMSwzNDYuNCwzNjUuOCwzMTEuNSwxOTUtMzQuOSwyOTguNC0yNDQsMjI4LjgtNDI0LjgtMzUuNi05Ni41LTEyMS4xLTE3My43LTIyMi44LTE5My45aDBaIi8+CiAgPGc+CiAgICA8Zz4KICAgICAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNNTMxLjQsMzY0bC0yOS4yLDQ4LjEtNjUuMSwxMDcuNGg1OC45bC0xNi42LDQ1LjVjLTcwLjMtMTIuOC0xMTcuMS0yNi0xNDUuOS0zNS43di0xMDIuMmMwLTguMiw2LjctMTQuOSwxNC45LTE0LjloMTMwbDUxLjYtNDkuMWMuNy0uNywxLjcuMiwxLjIsMVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNNjg1LjcsNDYzLjJsLTY4LjYtNC45djEyNi42YzM2LjksNC4yLDc3LjYsOCwxMjIuNCwxMS4ydi03NS4yYzAtMzAuNC0yMy41LTU1LjYtNTMuOC01Ny43Wk03MDEuNCw1MjguOGwtMzguNCwyNy42Yy00LjUsMy4yLTEwLjYsMC0xMC42LTUuNHYtNTUuM2MwLTUuNSw2LjItOC42LDEwLjYtNS40bDM4LjQsMjcuNmMzLjcsMi43LDMuNyw4LjIsMCwxMC45Wk01OTEuNSw0MTIuMmgtNjUuMmwtMjMsNzcuMWg2MS41bC01Mi4xLDgxLjVjMjgsNC41LDU5LjIsOC45LDkzLjgsMTN2LTE1Ni43YzAtOC4yLTYuNy0xNC45LTE0LjktMTQuOVoiLz4KICAgIDwvZz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQ3OS40LDU2NS4xbC0xOS40LDUzLjJoLTE0LjVjLTUuNS0xMC45LTE2LjgtMTguMy0yOS44LTE4LjNzLTI0LjMsNy41LTI5LjgsMTguM2gtMzcuNWMtOC4yLDAtMTQuOS02LjctMTQuOS0xNC45di03NGMyOC44LDkuOCw3NS41LDIzLDE0NS45LDM1LjdaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik00NDEuNSw2MTguM2MtNS4yLTguOC0xNC44LTE0LjgtMjUuNy0xNC44cy0yMC42LDUuOS0yNS43LDE0LjhjLTIuNiw0LjQtNC4xLDkuNi00LjEsMTUuMSwwLDE2LjUsMTMuNCwyOS44LDI5LjgsMjkuOHMyOS44LTEzLjMsMjkuOC0yOS44LTEuNS0xMC42LTQuMS0xNS4xWk00MzAuMiw2MzcuNmMtLjksMy4xLTIuOCw1LjgtNS4zLDcuNy0yLjUsMS45LTUuNywzLjEtOSwzLjEtNi44LDAtMTIuNi00LjYtMTQuNC0xMC44LS4xLS41LS4yLS45LS4zLTEuNC0uMi0uOS0uMy0xLjgtLjMtMi44czAtMSwwLTEuNGMuMi0xLjkuNy0zLjgsMS42LTUuNCwyLjUtNC45LDcuNS04LjIsMTMuNC04LjJzMTAuOSwzLjQsMTMuNCw4LjJjLjMuNi42LDEuMi44LDEuOC42LDEuNS45LDMuMi45LDVzLS4yLDIuOS0uNyw0LjNaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTgiIGQ9Ik03MDguNyw2MzEuMmMwLS45LS4xLTEuOC0uMy0yLjcsMC0uNC0uMi0uOC0uMi0xLjIsMC0uMiwwLS41LS4xLS43LTIuMS05LjMtOC42LTE3LTE3LTIwLjktMy44LTEuOC04LjEtMi44LTEyLjYtMi44LTE0LjQsMC0yNi42LDEwLjEtMjkuNywyMy42LDAsLjMtLjEuNi0uMi45LDAsLjQtLjIuNy0uMiwxLjEsMCwuNCwwLC43LS4xLDEtLjIsMS4yLS4yLDIuNS0uMiwzLjhzMCwxLjMuMSwxLjljMCwuOCwwLDEuNi4yLDIuNGgwYzIuMSwxNC44LDE0LjgsMjYuMiwzMC4xLDI2LjJzMjgtMTEuNCwzMC4xLTI2LjJjLjEtLjkuMi0yLC4yLTIuOSwwLS40LjEtLjkuMS0xLjMsMC0uNywwLTEuNSwwLTIuMlpNNjkzLDYzNi40YzAsLjQtLjEuOC0uMywxLjItMS44LDYuMi03LjYsMTAuOC0xNC40LDEwLjhzLTEyLjYtNC42LTE0LjQtMTAuOGgwYy0uNC0xLjMtLjctMi44LS43LTQuM3MuMS0yLC4zLTIuOWMuMS0uNy4zLTEuMy41LTIsLjItLjcuNC0xLjMuOC0yLDEuNS0yLjksMy45LTUuMyw2LjktNi44LDItLjksNC4yLTEuNSw2LjUtMS41czQuMy41LDYuMiwxLjNjMy4xLDEuNCw1LjcsMy45LDcuMiw2LjksMCwuMSwwLC4yLjEuNC4zLjUuNSwxLC43LDEuNi42LDEuNS45LDMuMi45LDQuOXMtLjIsMi4xLS40LDMuMVoiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtNyIgZD0iTTc0NC44LDYyNi41djExLjFoLTMyLjFjLjItMS40LjMtMi44LjMtNC4zcy0uMS0zLjItLjQtNC44YzAtLjYtLjItMS4zLS4zLTJoMGMtMy4yLTE1LjktMTcuMy0yNy45LTM0LTI3LjlzLTMwLjgsMTItMzQsMjcuOWMwLC4yLDAsLjQsMCwuNSwwLC41LS4yLDEtLjIsMS40LS4yLDEuNi0uNCwzLjItLjQsNC44czAsMi45LjMsNC4zaC0xNTkuOWwtMzEsMjkuNGMtLjcuNi0xLjctLjItMS4yLTFsMTguMi0yOC40LDcuMS0xMS4xLDUuMy04LjIsMzAuNC00Ny41YzI4LDQuNSw1OS4yLDguOSw5My44LDEzdjE5LjZjMCw4LjItNi43LDE0LjktMTQuOSwxNC45aC04Ny4xbC04LjcsOC4yaDEyMS40di00MS41YzM2LjksNC4yLDc3LjYsOCwxMjIuNCwxMS4ydjMwLjNoNS4zWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMzgxLjEsNjMzLjNjMCwxLjUsMCwyLjkuMyw0LjNoLTQ3Ljh2LTExLjFoNDguMmMtLjQsMi4yLS42LDQuNS0uNiw2LjhaIi8+CiAgPC9nPgo8L3N2Zz4=" alt="eTruck Academy beeldmerk" width="64" height="64" />
-          <div class="brand-context">
-            <p class="eyebrow">eTruck Academy®</p>
-            <p class="brand-subline">Kostencalculaties · CO₂</p>
-          </div>
+  <header class="appbar">
+    <div class="brand-lockup">
+      <img class="brand-logo" src="etruck-academy-beeldmerk.svg" alt="eTruck Academy beeldmerk" width="64" height="64" />
+      <div class="brand-lockup-text">
+        <p class="eyebrow">eTruck Academy®</p>
+        <h1 class="appbar-titel">CO₂-reductie rekentool</h1>
+        <p class="brand-subline">Kostencalculaties · CO₂</p>
+      </div>
+    </div>
+    <p class="data-provenance" id="data-provenance" aria-live="polite">Data-bron wordt geladen…</p>
+    <p class="print-only print-stamp" id="print-stamp">–</p>
+  </header>
+
+  <p class="werkbank-intro">Vergelijk de levenscyclus-uitstoot van een dieseltruck met een eTruck en zie vanaf hoeveel kilometer de eTruck netto CO₂ bespaart.</p>
+
+  <main class="layout">
+
+    <!-- INVOER -->
+    <section class="card card-dense input-panel" aria-labelledby="input-title">
+      <h2 id="input-title">Invoer</h2>
+      <p class="desc">Vul de rit-referentie in. De tool rekent het stroomverbruik en de break-even uit met de vaste emissiefactoren.</p>
+
+      <h3 class="subkop">Rit-referentie</h3>
+      <div class="fields">
+        <label for="dieselL"><span>Verbruik liters diesel</span>
+          <span class="helper">Referentie­verbruik waarmee de vergelijkings­rit is gedefinieerd.</span></label>
+        <div class="input-row">
+          <input id="dieselL" class="cell-input" type="number" min="0" step="any" value="100" inputmode="decimal" />
+          <span class="unit">L</span>
         </div>
-        <h1>CO₂-reductie rekentool</h1>
-        <p class="lead">
-          Vergelijk de levenscyclus-uitstoot van een dieseltruck met een eTruck en bereken vanaf
-          hoeveel kilometer de eTruck netto CO₂-winst oplevert.
-        </p>
-        <div class="hero-pills">
-          <span>Well-to-Wheel &amp; Tank-to-Wheel</span>
-          <span>Diesel B7</span>
-          <span>Inclusief productie-uitstoot</span>
+
+        <label for="kmPerL"><span>Aantal kilometer per liter</span>
+          <span class="helper">Brandstof­verbruik van de dieseltruck (B7).</span></label>
+        <div class="input-row">
+          <input id="kmPerL" class="cell-input" type="number" min="0.1" step="any" value="4" inputmode="decimal" />
+          <span class="unit">km/L</span>
         </div>
-        <p class="data-provenance" id="data-provenance" aria-live="polite">Data-bron wordt geladen…</p>
-        <p class="print-only print-stamp" id="print-stamp">–</p>
+      </div>
+      <p class="checkline" id="checkline" aria-live="polite">–</p>
+
+      <h3 class="subkop">Elektrische aandrijflijn</h3>
+      <div class="fields">
+        <label for="regen"><span>Inzet / regenereren</span>
+          <span class="helper">Aandeel van het verbruik dat via regeneratie wordt teruggewonnen. Maximaal 30%.</span></label>
+        <div class="input-row">
+          <input id="regen" class="cell-input" type="number" min="0" max="30" step="any" value="20" inputmode="decimal" />
+          <span class="unit">%</span>
+        </div>
+
+        <label for="battKwh"><span>Batterijcapaciteit</span>
+          <span class="helper">Totale capaciteit van het batterijpakket. Bepaalt de productie-uitstoot van de eTruck.</span></label>
+        <div class="input-row">
+          <input id="battKwh" class="cell-input" type="number" min="0" step="any" value="600" inputmode="decimal" />
+          <span class="unit">kWh</span>
+        </div>
       </div>
 
-      <aside class="hero-kpi" aria-live="polite">
-        <p class="hero-kpi-label">CO₂ break-even</p>
-        <p class="hero-kpi-value" id="hero-breakeven">–</p>
-        <p class="hero-kpi-unit">kilometer</p>
-        <p class="hero-kpi-hint">Vanaf dit aantal km is de eTruck netto schoner dan de dieseltruck, inclusief productie.</p>
-      </aside>
-    </header>
+      <h3 class="subkop" id="modus-kop">Emissiefactor-modus</h3>
+      <div class="segmented" role="group" aria-labelledby="modus-kop">
+        <button type="button" id="modeWtw" aria-pressed="true">Well-to-Wheel</button>
+        <button type="button" id="modeTtw" aria-pressed="false">Tank-to-Wheel</button>
+      </div>
+      <p class="modus-hint">Well-to-Wheel is leidend (inclusief upstream-uitstoot); Tank-to-Wheel rekent met directe verbranding.</p>
 
-    <!-- MAIN GRID -->
-    <main class="layout">
+      <p class="kleurlegenda">
+        <span><span class="blok cell-input"></span>Groen: dit vul je zelf in</span>
+        <span><span class="blok cell-param"></span>Amber: vaste factor uit @nts/params</span>
+        <span><span class="blok cell-readonly"></span>Wit: uitkomst</span>
+      </p>
 
-      <!-- INPUT -->
-      <section class="panel input-panel" aria-labelledby="input-title">
-        <div class="panel-heading">
-          <h2 id="input-title">Invoer</h2>
-          <p>Vul de rit-referentie in. De tool berekent het stroomverbruik en de break-even op basis van de vaste emissiefactoren.</p>
-        </div>
-
-        <div class="form-grid">
-
-          <fieldset>
-            <legend>Rit-referentie</legend>
-
-            <label>
-              <span class="lbl">Verbruik liters diesel</span>
-              <div class="input-row">
-                <input id="dieselL" type="number" min="0" step="any" value="100" inputmode="decimal" />
-                <span class="unit">L</span>
-              </div>
-              <span class="helper">Referentie­verbruik waarmee de vergelijkings­rit is gedefinieerd.</span>
-            </label>
-
-            <label>
-              <span class="lbl">Aantal kilometer per liter</span>
-              <div class="input-row">
-                <input id="kmPerL" type="number" min="0.1" step="any" value="4" inputmode="decimal" />
-                <span class="unit">km/L</span>
-              </div>
-              <span class="helper">Brandstof­verbruik van de dieseltruck (B7).</span>
-            </label>
-          </fieldset>
-
-          <fieldset>
-            <legend>Elektrische aandrijflijn</legend>
-
-            <label>
-              <span class="lbl">Inzet / regenereren</span>
-              <div class="input-row">
-                <input id="regen" type="number" min="0" max="30" step="any" value="20" inputmode="decimal" />
-                <span class="unit">%</span>
-              </div>
-              <span class="helper">Aandeel van het verbruik dat via regeneratie wordt teruggewonnen. Maximaal 30%.</span>
-            </label>
-
-            <label>
-              <span class="lbl">Batterijcapaciteit</span>
-              <div class="input-row">
-                <input id="battKwh" type="number" min="0" step="any" value="600" inputmode="decimal" />
-                <span class="unit">kWh</span>
-              </div>
-              <span class="helper">Totale capaciteit van het batterijpakket. Bepaalt de productie-uitstoot van de eTruck.</span>
-            </label>
-          </fieldset>
-
-          <fieldset>
-            <legend>Emissiefactor-modus</legend>
-            <label>
-              <span class="lbl">Keuze berekeningswijze</span>
-              <div class="segmented" role="group" aria-label="Emissiefactor-modus">
-                <button type="button" id="modeWtw" aria-pressed="true">Well-to-Wheel</button>
-                <button type="button" id="modeTtw" aria-pressed="false">Tank-to-Wheel</button>
-              </div>
-              <span class="helper">Well-to-Wheel is leidend (inclusief upstream-uitstoot); Tank-to-Wheel rekent met directe verbranding.</span>
-            </label>
-          </fieldset>
-
-        </div>
-
-        <div class="input-actions">
-          <button type="button" class="btn btn-secondary" id="resetBtn">Herstel standaardwaarden</button>
-        </div>
-      </section>
-
-      <!-- RESULTS -->
-      <section class="panel results-panel" aria-labelledby="results-title">
-        <div class="panel-heading">
-          <h2 id="results-title">Resultaat</h2>
-          <p>Netto hoofduitkomst eerst, daaronder de bouwstenen van de berekening.</p>
-        </div>
-
-        <!-- KPI overview -->
-        <div class="detail-cards" role="list">
-          <article class="detail-card" role="listitem">
-            <span class="kpi-label">Besparing per km</span>
-            <span class="kpi-value" id="kpi-saving">–</span>
-            <span class="kpi-unit">kg CO₂/km</span>
-          </article>
-          <article class="detail-card" role="listitem">
-            <span class="kpi-label">Productie-verschil eTruck</span>
-            <span class="kpi-value" id="kpi-prod-diff">–</span>
-            <span class="kpi-unit">kg CO₂ extra</span>
-          </article>
-          <article class="detail-card" role="listitem">
-            <span class="kpi-label">Netto winst bij 200.000 km</span>
-            <span class="kpi-value" id="kpi-net-200k">–</span>
-            <span class="kpi-unit">kg CO₂ minder dan diesel</span>
-          </article>
-        </div>
-
-        <!-- Calc breakdown -->
-        <div class="calc-card" aria-label="Uitwerking berekening">
-
-          <p class="calc-section-label">Emissiefactoren · <span id="mode-label">Well-to-Wheel</span></p>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Uitstoot per liter diesel (B7)</span>
-              <span class="calc-sub">bron: co2emissiefactoren.nl</span>
-            </div>
-            <div class="calc-value" id="f-diesel">–<small>kg CO₂/L</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Uitstoot per kWh stroom (NL)</span>
-              <span class="calc-sub">bron: co2emissiefactoren.nl</span>
-            </div>
-            <div class="calc-value" id="f-stroom">–<small>kg CO₂/kWh</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Energie-equivalent diesel → eTruck</span>
-              <span class="calc-sub">vast: 5,4 kWh per liter diesel</span>
-            </div>
-            <div class="calc-value">5,4<small>kWh/L</small></div>
-          </div>
-
-          <p class="calc-section-label">Verbruik</p>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Stroomverbruik eTruck (berekend)</span>
-              <span class="calc-sub">liters × 5,4 × (1 − regeneratie)</span>
-            </div>
-            <div class="calc-value" id="kwh-total">–<small>kWh</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Liters diesel per km</span>
-            </div>
-            <div class="calc-value" id="diesel-per-km">–<small>L/km</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">kWh stroom per km</span>
-            </div>
-            <div class="calc-value" id="kwh-per-km">–<small>kWh/km</small></div>
-          </div>
-
-          <p class="calc-section-label">Uitstoot per kilometer</p>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Diesel</span>
-            </div>
-            <div class="calc-value" id="co2-diesel-km">–<small>kg CO₂/km</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">eTruck</span>
-            </div>
-            <div class="calc-value" id="co2-etruck-km">–<small>kg CO₂/km</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Verschil (besparing)</span>
-            </div>
-            <div class="calc-value" id="co2-diff-km">–<small>kg CO₂/km</small></div>
-          </div>
-
-          <p class="calc-section-label">Productie-uitstoot (levenscyclus)</p>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Basisvoertuig diesel</span>
-              <span class="calc-sub">bron: Scania LCA</span>
-            </div>
-            <div class="calc-value">24.150<small>kg CO₂</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Basisvoertuig eTruck (excl. batterij)</span>
-              <span class="calc-sub">bron: Scania LCA</span>
-            </div>
-            <div class="calc-value">28.030<small>kg CO₂</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Batterij­pakket</span>
-              <span class="calc-sub" id="battery-sub">–</span>
-            </div>
-            <div class="calc-value" id="battery-kg">–<small>kg CO₂</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Totaal productie eTruck</span>
-            </div>
-            <div class="calc-value" id="total-prod-etruck">–<small>kg CO₂</small></div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label-group">
-              <span class="calc-label">Extra productie-uitstoot eTruck</span>
-              <span class="calc-sub">ten opzichte van dieseltruck</span>
-            </div>
-            <div class="calc-value" id="extra-prod-etruck">–<small>kg CO₂</small></div>
-          </div>
-
-          <div class="calc-row calc-total">
-            <div class="calc-label-group">
-              <span class="calc-label">CO₂ break-even punt</span>
-              <span class="calc-sub">extra productie / besparing per km</span>
-            </div>
-            <div class="calc-value" id="breakeven-val">–<small>km</small></div>
-          </div>
-        </div>
-
-      </section>
-    </main>
-
-    <!-- CHART -->
-    <section class="chart-card" aria-labelledby="chart-title">
-      <h3 id="chart-title">Cumulatieve CO₂-uitstoot per voertuig</h3>
-      <p class="chart-sub">Productie + gebruiksuitstoot opgeteld over afgelegde kilometers. Het snijpunt is het break-even punt.</p>
-      <svg class="chart" id="chart" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true"></svg>
-      <div class="legend">
-        <span class="item"><span class="sw" style="background:#7b7886"></span> Diesel</span>
-        <span class="item"><span class="sw" style="background:#2e2343"></span> eTruck</span>
-        <span class="item"><span class="sw" style="background:#f6a119"></span> Break-even</span>
+      <div class="input-actions">
+        <button type="button" class="btn btn-secondary" id="resetBtn">Herstel standaardwaarden</button>
       </div>
     </section>
 
-    <!-- ASSUMPTIONS -->
-    <aside class="assumptions" aria-labelledby="assumptions-title">
-      <h3 id="assumptions-title">Aannames</h3>
-      <ul>
-        <li>Diesel betreft <strong>B7 wegdiesel</strong> (tot 7% biodiesel).</li>
-        <li>Stroomfactor <strong>Well-to-Wheel</strong>: Nederlandse netmix (volledige opwek-uitstoot).</li>
-        <li>Stroomfactor <strong>Tank-to-Wheel</strong>: 0 kg CO₂/kWh — een eTruck heeft geen uitlaat, directe uitstoot is nul.</li>
-        <li>Energie-equivalent van <strong>5,4 kWh per liter diesel</strong> is een vaste aanname voor het dieselverbruik vertaald naar het eTruck-stroomverbruik.</li>
-        <li>Regeneratie is gemaximeerd op <strong>30%</strong>.</li>
-        <li>Productie-uitstoot volgt de Scania Life Cycle Assessment-publicatie voor distributie­voertuigen.</li>
-        <li>Break-even geldt alleen als de eTruck een lagere uitstoot per km heeft dan de dieseltruck.</li>
-      </ul>
-    </aside>
+    <!-- RESULTAAT -->
+    <section class="card card-dense results-panel" aria-labelledby="results-title">
+      <h2 id="results-title">Resultaat</h2>
+      <p class="desc">Netto hoofduitkomst eerst, daaronder de bouwstenen van de berekening.</p>
 
-    <!-- SOURCES -->
-    <footer class="sources">
-      <strong>Bronnen</strong>
-      Emissiefactoren diesel B7 en Nederlandse elektriciteit via
-      <a href="https://co2emissiefactoren.nl" target="_blank" rel="noopener">co2emissiefactoren.nl</a>.
-      Productie-uitstoot voertuigen en batterij via
-      <a href="https://www.scania.com/content/dam/group/press-and-media/press-releases/documents/Scania-Life-cycle-assessment-of-distribution-vehicles.pdf" target="_blank" rel="noopener">Scania Life Cycle Assessment of distribution vehicles (PDF)</a>.
-      De centrale parameter­bron is <strong>@nts/params</strong>; waarden worden jaarlijks herzien.
-    </footer>
+      <div class="kpis" aria-live="polite">
+        <div class="kpi hoofd">
+          <div class="lbl">CO₂ break-even</div>
+          <div class="val" id="hero-breakeven">–</div>
+          <div class="hint">kilometer · vanaf hier is de eTruck netto schoner dan de dieseltruck, inclusief productie.</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Besparing per km</div>
+          <div class="val" id="kpi-saving">–</div>
+          <div class="hint">kg CO₂/km</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Productie-verschil eTruck</div>
+          <div class="val" id="kpi-prod-diff">–</div>
+          <div class="hint">kg CO₂ extra</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Netto winst bij 200.000 km</div>
+          <div class="val" id="kpi-net-200k">–</div>
+          <div class="hint">kg CO₂ minder dan diesel</div>
+        </div>
+      </div>
 
-    <div class="export-bar no-print">
+      <div class="tablewrap">
+        <table class="data uitwerking" aria-label="Uitwerking berekening">
+          <thead>
+            <tr><th scope="col">Onderdeel</th><th scope="col">Toelichting</th><th scope="col" class="num">Waarde</th></tr>
+          </thead>
+          <tbody>
+            <tr class="groep"><th colspan="3" scope="colgroup">Emissiefactoren · <span id="mode-label">Well-to-Wheel</span></th></tr>
+            <tr><th scope="row">Uitstoot per liter diesel (B7)</th><td class="toelichting">bron: co2emissiefactoren.nl</td><td class="num cell-param" id="f-diesel">–<small>kg CO₂/L</small></td></tr>
+            <tr><th scope="row">Uitstoot per kWh stroom (NL)</th><td class="toelichting">bron: co2emissiefactoren.nl</td><td class="num cell-param" id="f-stroom">–<small>kg CO₂/kWh</small></td></tr>
+            <tr><th scope="row">Energie-equivalent diesel → eTruck</th><td class="toelichting">vast: 5,4 kWh per liter diesel</td><td class="num cell-param">5,4<small>kWh/L</small></td></tr>
+          </tbody>
+          <tbody>
+            <tr class="groep"><th colspan="3" scope="colgroup">Verbruik</th></tr>
+            <tr><th scope="row">Stroomverbruik eTruck (berekend)</th><td class="toelichting">liters × 5,4 × (1 − regeneratie)</td><td class="num" id="kwh-total">–<small>kWh</small></td></tr>
+            <tr><th scope="row">Liters diesel per km</th><td class="toelichting"></td><td class="num" id="diesel-per-km">–<small>L/km</small></td></tr>
+            <tr><th scope="row">kWh stroom per km</th><td class="toelichting"></td><td class="num" id="kwh-per-km">–<small>kWh/km</small></td></tr>
+          </tbody>
+          <tbody>
+            <tr class="groep"><th colspan="3" scope="colgroup">Uitstoot per kilometer</th></tr>
+            <tr><th scope="row">Diesel</th><td class="toelichting"></td><td class="num" id="co2-diesel-km">–<small>kg CO₂/km</small></td></tr>
+            <tr><th scope="row">eTruck</th><td class="toelichting"></td><td class="num" id="co2-etruck-km">–<small>kg CO₂/km</small></td></tr>
+            <tr><th scope="row">Verschil (besparing)</th><td class="toelichting"></td><td class="num" id="co2-diff-km">–<small>kg CO₂/km</small></td></tr>
+          </tbody>
+          <tbody>
+            <tr class="groep"><th colspan="3" scope="colgroup">Productie-uitstoot (levenscyclus)</th></tr>
+            <tr><th scope="row">Basisvoertuig diesel</th><td class="toelichting">bron: Scania LCA</td><td class="num cell-param">24.150<small>kg CO₂</small></td></tr>
+            <tr><th scope="row">Basisvoertuig eTruck (excl. batterij)</th><td class="toelichting">bron: Scania LCA</td><td class="num cell-param">28.030<small>kg CO₂</small></td></tr>
+            <tr><th scope="row">Batterij­pakket</th><td class="toelichting" id="battery-sub">–</td><td class="num" id="battery-kg">–<small>kg CO₂</small></td></tr>
+            <tr><th scope="row">Totaal productie eTruck</th><td class="toelichting"></td><td class="num" id="total-prod-etruck">–<small>kg CO₂</small></td></tr>
+            <tr><th scope="row">Extra productie-uitstoot eTruck</th><td class="toelichting">ten opzichte van dieseltruck</td><td class="num" id="extra-prod-etruck">–<small>kg CO₂</small></td></tr>
+          </tbody>
+          <tbody>
+            <tr class="totaal"><th scope="row">CO₂ break-even punt</th><td class="toelichting">extra productie / besparing per km</td><td class="num" id="breakeven-val">–<small>km</small></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- GRAFIEK -->
+    <section class="card card-dense chart-card breed" aria-labelledby="chart-title">
+      <h2 id="chart-title">Cumulatieve CO₂-uitstoot per voertuig</h2>
+      <p class="desc">Productie + gebruiksuitstoot opgeteld over afgelegde kilometers. Het snijpunt is het break-even punt.</p>
+      <svg class="chart" id="chart" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="legenda">
+        <span class="legend-pill"><span class="swatch lijn" style="background: var(--eta-series-diesel)"></span>Diesel</span>
+        <span class="legend-pill"><span class="swatch lijn" style="background: var(--eta-series-etruck)"></span>eTruck (dikke lijn)</span>
+        <span class="legend-pill"><span class="swatch streep"></span>Break-even</span>
+      </div>
+    </section>
+
+    <!-- AANNAMES + BRONNEN -->
+    <section class="card card-dense aannames-kaart breed" aria-labelledby="assumptions-title">
+      <h2 id="assumptions-title">Aannames en bronnen</h2>
+      <div class="aannames">
+        <ul>
+          <li>Diesel betreft <strong>B7 wegdiesel</strong> (tot 7% biodiesel).</li>
+          <li>Stroomfactor <strong>Well-to-Wheel</strong>: Nederlandse netmix (volledige opwek-uitstoot).</li>
+          <li>Stroomfactor <strong>Tank-to-Wheel</strong>: 0 kg CO₂/kWh — een eTruck heeft geen uitlaat, directe uitstoot is nul.</li>
+          <li>Energie-equivalent van <strong>5,4 kWh per liter diesel</strong> is een vaste aanname voor het dieselverbruik vertaald naar het eTruck-stroomverbruik.</li>
+          <li>Regeneratie is gemaximeerd op <strong>30%</strong>.</li>
+          <li>Productie-uitstoot volgt de Scania Life Cycle Assessment-publicatie voor distributie­voertuigen.</li>
+          <li>Break-even geldt alleen als de eTruck een lagere uitstoot per km heeft dan de dieseltruck.</li>
+        </ul>
+      </div>
+      <p class="bronnen">
+        <strong>Bronnen.</strong>
+        Emissiefactoren diesel B7 en Nederlandse elektriciteit via
+        <a href="https://co2emissiefactoren.nl" target="_blank" rel="noopener">co2emissiefactoren.nl</a>.
+        Productie-uitstoot voertuigen en batterij via
+        <a href="https://www.scania.com/content/dam/group/press-and-media/press-releases/documents/Scania-Life-cycle-assessment-of-distribution-vehicles.pdf" target="_blank" rel="noopener">Scania Life Cycle Assessment of distribution vehicles (PDF)</a>.
+        De centrale parameter­bron is <strong>@nts/params</strong>; waarden worden jaarlijks herzien.
+      </p>
+    </section>
+
+    <div class="export-bar breed no-print">
       <button type="button" class="btn btn-primary export-pdf-btn" id="exportPdfBtn" title="Print of bewaar als PDF">
         Exporteer als PDF
       </button>
       <p class="export-hint">Opent het print-dialoog. Kies <strong>Bewaar als PDF</strong> om een rapport van dit scenario op te slaan.</p>
     </div>
 
-    <div class="brand-footer">
-      <strong>eTruck Academy®</strong> · CO₂-reductie rekentool
-    </div>
+  </main>
 
-  </div>
+  <footer class="appfooter">eTruck Academy® · CO₂-reductie rekentool · Bronnen: co2emissiefactoren.nl en Scania LCA · Factoren: @nts/params, <span id="footer-versie">versie –</span></footer>
 
 <script>
 (function () {
@@ -1064,6 +515,8 @@
     el.classList.toggle('is-live', !!live);
     el.classList.toggle('is-fallback', !live);
     el.innerHTML = `<span class="dot"></span> ${prefix} · jaar <strong>${meta.jaar}</strong> · laatst bijgewerkt <strong>${dateTxt}</strong>`;
+    const fv = document.getElementById('footer-versie');
+    if (fv) fv.textContent = `versie ${meta.version || '–'} (jaar ${meta.jaar}, export ${dateTxt})`;
   }
 
   async function loadFactors() {
@@ -1197,17 +650,36 @@
     $('kpi-prod-diff').innerHTML = `${fmt(r.prodDiff, 0)}`;
     $('kpi-net-200k').innerHTML = `${fmt(r.netAt200k, 0)}`;
 
+    // Controleregel (canon §17): de tool toont zijn eigen som van de rit-referentie.
+    $('checkline').textContent = r.refKm > 0
+      ? `✓ Referentierit: ${num(inputs.dieselL).toLocaleString('nl-NL', { maximumFractionDigits: 3 })} L × ${num(inputs.kmPerL).toLocaleString('nl-NL', { maximumFractionDigits: 3 })} km/L = ${fmt(r.refKm, 0)} km`
+      : 'Vul liters diesel en km per liter in (beide groter dan 0).';
+
     drawChart(r);
   }
 
   function drawChart(r) {
     const svg = $('chart');
     const W = 800, H = 300;
-    const padL = 60, padR = 16, padT = 18, padB = 38;
+    const padL = 60, padR = 64, padT = 18, padB = 38;
     const iw = W - padL - padR;
     const ih = H - padT - padB;
 
     svg.innerHTML = '';
+    // Kleuren uit de canon-tokens (css/etruck.css); aandrijvingen volgens canon §17.2.
+    const css = getComputedStyle(document.documentElement);
+    const T = (naam) => css.getPropertyValue(naam).trim();
+    const kl = {
+      diesel: T('--eta-series-diesel'),
+      etruck: T('--eta-series-etruck'),
+      breakeven: T('--eta-purple-900'),
+      raster: T('--eta-border-soft'),
+      as: T('--eta-border-strong'),
+      tekst: T('--eta-text-muted'),
+      tekstSterk: T('--eta-text-subtle'),
+      label: T('--eta-purple-900')
+    };
+    const font = T('--eta-font-body');
     const ns = 'http://www.w3.org/2000/svg';
     const el = (tag, attrs) => {
       const e = document.createElementNS(ns, tag);
@@ -1220,8 +692,8 @@
     if (!isFinite(r.co2DieselKm) || !isFinite(r.co2ETruckKm)) {
       const t = el('text', {
         x: W / 2, y: padT + ih / 2,
-        'text-anchor': 'middle', 'font-size': 13, fill: '#7b7886',
-        'font-family': "'Titillium Web', sans-serif"
+        'text-anchor': 'middle', 'font-size': 13, fill: kl.tekst,
+        'font-family': font
       });
       t.textContent = 'Vul alle invoervelden in om de grafiek te tonen.';
       svg.appendChild(t);
@@ -1248,12 +720,12 @@
       const gy = y(v);
       svg.appendChild(el('line', {
         x1: padL, x2: W - padR, y1: gy, y2: gy,
-        stroke: '#edecf1', 'stroke-width': 1
+        stroke: kl.raster, 'stroke-width': 1
       }));
       const t = el('text', {
         x: padL - 10, y: gy + 4, 'text-anchor': 'end',
-        'font-size': 11, fill: '#7b7886',
-        'font-family': "'Titillium Web', sans-serif"
+        'font-size': 11, fill: kl.tekst,
+        'font-family': font
       });
       t.textContent = Math.round(v / 1000) + 'k';
       svg.appendChild(t);
@@ -1265,12 +737,12 @@
       const gx = x(km);
       svg.appendChild(el('line', {
         x1: gx, x2: gx, y1: padT + ih, y2: padT + ih + 4,
-        stroke: '#c9c8d3', 'stroke-width': 1
+        stroke: kl.as, 'stroke-width': 1
       }));
       const t = el('text', {
         x: gx, y: padT + ih + 20, 'text-anchor': 'middle',
-        'font-size': 11, fill: '#7b7886',
-        'font-family': "'Titillium Web', sans-serif"
+        'font-size': 11, fill: kl.tekst,
+        'font-family': font
       });
       t.textContent = Math.round(km / 1000) + 'k';
       svg.appendChild(t);
@@ -1280,24 +752,24 @@
       x: 14, y: padT + ih / 2,
       transform: `rotate(-90 14 ${padT + ih / 2})`,
       'text-anchor': 'middle', 'font-size': 11,
-      fill: '#5a5764', 'font-family': "'Titillium Web', sans-serif"
+      fill: kl.tekstSterk, 'font-family': font
     });
     yt.textContent = 'kg CO₂';
     svg.appendChild(yt);
 
-    svg.appendChild(el('line', { x1: padL, x2: padL, y1: padT, y2: padT + ih, stroke: '#c9c8d3', 'stroke-width': 1 }));
-    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + ih, y2: padT + ih, stroke: '#c9c8d3', 'stroke-width': 1 }));
+    svg.appendChild(el('line', { x1: padL, x2: padL, y1: padT, y2: padT + ih, stroke: kl.as, 'stroke-width': 1 }));
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + ih, y2: padT + ih, stroke: kl.as, 'stroke-width': 1 }));
 
     if (isFinite(r.breakEven) && r.breakEven > 0 && r.breakEven < maxKm) {
       const bex = x(r.breakEven);
       svg.appendChild(el('line', {
         x1: bex, x2: bex, y1: padT, y2: padT + ih,
-        stroke: '#f6a119', 'stroke-width': 2, 'stroke-dasharray': '5 5'
+        stroke: kl.breakeven, 'stroke-width': 1.5, 'stroke-dasharray': '5 5'
       }));
       const be = el('text', {
         x: bex + 8, y: padT + 14,
-        'font-size': 12, fill: '#b26a00', 'font-weight': 700,
-        'font-family': "'Titillium Web', sans-serif"
+        'font-size': 12, fill: kl.label, 'font-weight': 700,
+        'font-family': font
       });
       be.textContent = 'Break-even · ' + new Intl.NumberFormat('nl-NL').format(Math.round(r.breakEven)) + ' km';
       svg.appendChild(be);
@@ -1306,13 +778,30 @@
     svg.appendChild(el('line', {
       x1: x(0), y1: y(FACTORS.prodDiesel),
       x2: x(maxKm), y2: y(FACTORS.prodDiesel + r.co2DieselKm * maxKm),
-      stroke: '#7b7886', 'stroke-width': 2.5, 'stroke-linecap': 'round'
+      stroke: kl.diesel, 'stroke-width': 2.5, 'stroke-linecap': 'round'
     }));
     svg.appendChild(el('line', {
       x1: x(0), y1: y(r.prodETruckTotal),
       x2: x(maxKm), y2: y(r.prodETruckTotal + r.co2ETruckKm * maxKm),
-      stroke: '#2e2343', 'stroke-width': 2.5, 'stroke-linecap': 'round'
+      stroke: kl.etruck, 'stroke-width': 4.5, 'stroke-linecap': 'round'
     }));
+
+    // Directe labels aan het lijneinde: geel haalt maar 1,7 : 1 op wit, dus de
+    // eTruck-lijn is dikker én heeft een label (canon §17.2).
+    let yD = y(FACTORS.prodDiesel + r.co2DieselKm * maxKm);
+    let yE = y(r.prodETruckTotal + r.co2ETruckKm * maxKm);
+    if (Math.abs(yD - yE) < 14) {
+      const mid = (yD + yE) / 2;
+      if (yD <= yE) { yD = mid - 7; yE = mid + 7; } else { yD = mid + 7; yE = mid - 7; }
+    }
+    [['Diesel', yD], ['eTruck', yE]].forEach(([tekst, ly]) => {
+      const t = el('text', {
+        x: x(maxKm) + 6, y: ly + 4, 'font-size': 12, 'font-weight': 700,
+        fill: kl.label, 'font-family': font
+      });
+      t.textContent = tekst;
+      svg.appendChild(t);
+    });
   }
 
   // Mode toggle
