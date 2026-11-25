@@ -652,7 +652,7 @@
 
     // Controleregel (canon §17): de tool toont zijn eigen som van de rit-referentie.
     $('checkline').textContent = r.refKm > 0
-      ? `✓ Referentierit: ${fmt(num(inputs.dieselL), 1)} L × ${fmt(num(inputs.kmPerL), 2)} km/L = ${fmt(r.refKm, 0)} km`
+      ? `✓ Referentierit: ${num(inputs.dieselL).toLocaleString('nl-NL', { maximumFractionDigits: 3 })} L × ${num(inputs.kmPerL).toLocaleString('nl-NL', { maximumFractionDigits: 3 })} km/L = ${fmt(r.refKm, 0)} km`
       : 'Vul liters diesel en km per liter in (beide groter dan 0).';
 
     drawChart(r);
