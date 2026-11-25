@@ -1,0 +1,131 @@
+/* ============================================================
+   eTruck Academy — design tokens (canon)
+   Bron: FORMAT - eTruck Academy Tool UI (Canon), sectie 1 + 13.1
+   Distributie: github.com/NijenhuisHeino/etruck-canon
+   Niet aanpassen in projecten — afwijkingen alleen met expliciete
+   goedkeuring. Bij twijfel: volg de canon, niet je smaak.
+   ============================================================ */
+
+/* Fonts: headings Titillium Web, body/UI Montserrat (canon 1.2).
+   Vereenvoudiging (toegestaan): overal één stack gebruiken. */
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+  /* --- Core merkkleuren --- */
+  --eta-purple-900: #2e2343;   /* primaire merkkleur */
+  --eta-purple-soft: #41315f;  /* lichtere paarse tint (hero-gradient) */
+  --eta-purple-deep: #221833;  /* donkerste paarse tint */
+  --eta-yellow-500: #f9bc13;   /* primaire CTA / highlight */
+  --eta-orange-500: #f6a119;   /* secundair accent — nooit primaire CTA */
+  --eta-white: #ffffff;
+  --eta-cream: #f7f3ec;
+
+  /* --- Afgeleide neutrale tokens --- */
+  --eta-bg-page: #f7f7f9;
+  --eta-bg-card: #ffffff;
+  --eta-bg-soft: #f4f4f6;
+  --eta-border-soft: #dedee6;
+  --eta-border-strong: #c9c8d3;
+  --eta-border-line: rgba(46, 35, 67, 0.12);
+  --eta-border-soft-purple: rgba(46, 35, 67, 0.08);
+  --eta-text-main: #1a1a1f;
+  --eta-text-subtle: #5a5764;
+  --eta-text-soft: rgba(46, 35, 67, 0.72);
+  --eta-text-muted: #7b7886;
+
+  /* --- Statuskleuren (rustig, geen neon) --- */
+  --eta-success: #1f7a46;
+  --eta-warning: #b26a00;
+  --eta-warning-bright: #f6a119;
+  --eta-danger: #b42318;
+  --eta-info: #475467;
+
+  /* --- Typografie --- */
+  --eta-font-heading: "Titillium Web", "Montserrat", Arial, sans-serif;
+  --eta-font-body: "Montserrat", "Nunito Sans", Arial, sans-serif;
+  --eta-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --eta-font-12: 12px;
+  --eta-font-14: 14px;
+  --eta-font-16: 16px;
+  --eta-font-18: 18px;
+  --eta-font-20: 20px;
+  --eta-font-24: 24px;
+  --eta-font-28: 28px;
+  --eta-font-36: 36px;
+  --eta-font-44: 44px;
+  --eta-weight-regular: 400;
+  --eta-weight-medium: 500;
+  --eta-weight-semibold: 600;
+  --eta-weight-bold: 700;
+
+  /* --- Spacing scale (geen willekeurige pixels) --- */
+  --eta-space-4: 4px;
+  --eta-space-8: 8px;
+  --eta-space-12: 12px;
+  --eta-space-16: 16px;
+  --eta-space-20: 20px;
+  --eta-space-24: 24px;
+  --eta-space-32: 32px;
+  --eta-space-40: 40px;
+  --eta-space-48: 48px;
+  --eta-space-64: 64px;
+
+  /* --- Radius --- */
+  --eta-radius-sm: 10px;
+  --eta-radius-md: 14px;
+  --eta-radius-lg: 18px;
+  --eta-radius-xl: 24px;
+
+  /* --- Shadows (subtiel; geen neon/glassmorphism) --- */
+  --eta-shadow-card: 0 8px 24px rgba(46, 35, 67, 0.08);
+  --eta-shadow-soft: 0 4px 12px rgba(46, 35, 67, 0.05);
+  --eta-shadow-hero: 0 24px 60px rgba(46, 35, 67, 0.16);
+
+  /* --- Layout --- */
+  /* Canon-standaard 1180px; data-dashboards met brede tabellen
+     mogen 1280px (precedent: laadpas-analyse). */
+  --eta-content-max: 1180px;
+  --eta-content-reading: 760px;
+  --eta-sidebar-width: 360px;
+  --eta-grid-gap: 24px;
+}
+
+/* ============================================================
+   Werkbank-profiel (canon §17)
+   Voor dichte rekentools die een Excel-model vervangen.
+   Precedent: TCO-calculator (tco-calculator.etruckacademy.nl).
+   Merkkleuren, fonts en cijfernotatie blijven ongewijzigd —
+   dit profiel verandert alleen dichtheid, celkleur en tabelstijl.
+   ============================================================ */
+:root {
+  /* Layout: breder dan de publiekstool, want brede jaartabellen */
+  --eta-wb-content-max: 1500px;
+
+  /* Dichtere maatvoering (alleen binnen .werkbank) */
+  --eta-wb-radius-sm: 6px;
+  --eta-wb-radius-card: 10px;
+  --eta-wb-font-sm: 13px;
+  --eta-wb-font-base: 15px;
+  --eta-wb-row-pad: 5px;
+
+  /* Celkleur = betekenis. Volgt de groene cellen uit het Excel-model. */
+  --eta-cell-input: #eef4e2;      /* groen  — de gebruiker vult dit in */
+  --eta-cell-param: #fff7e8;      /* amber  — beheerparameter, zelden aanraken */
+  --eta-cell-readonly: #ffffff;   /* wit    — uitkomst, niet invulbaar */
+
+  /* Datatabel */
+  --eta-table-head: var(--eta-purple-900);
+  --eta-table-border: #e4e2de;
+  --eta-table-zebra: #faf8f4;
+  --eta-table-rowlabel: #faf9f7;
+  --eta-table-best: #e8f3dd;      /* gunstigste waarde in een vergelijking */
+
+  /* Grafiekreeksen per aandrijving — vaste betekenis, niet vrij kiezen.
+     Blauw is hier toegestaan als reekskleur voor waterstof, nooit als UI-accent. */
+  --eta-series-diesel: #5a5a5a;
+  --eta-series-etruck: #f9bc13;
+  --eta-series-etruck-sub: #dc7800;
+  --eta-series-fcet: #5b9bd5;
+  --eta-series-fcet-sub: #2f6fa8;
+  --eta-series-neutral: #94a3b8;
+}

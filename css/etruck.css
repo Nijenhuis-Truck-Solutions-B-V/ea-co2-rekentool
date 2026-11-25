@@ -1,0 +1,1265 @@
+/* ============================================================
+   eTruck Academy Tool UI — basis-stylesheet (canon-compliant)
+   Bron: FORMAT - eTruck Academy Tool UI (Canon)
+   Distributie: github.com/NijenhuisHeino/etruck-canon
+   Referentie-implementaties: PV+BESS+ERE-tool, laadpas-analyse
+
+   Gebruik: kopieer dit bestand integraal als basis-stylesheet
+   (bijv. app/globals.css in Next.js of <link> in plain HTML).
+   Projectspecifieke classes voeg je ERONDER toe, met dezelfde
+   tokens. Tokens zelf nooit per project wijzigen.
+
+   Inhoud:
+   1. Tokens          7. Buttons (.btn)
+   2. Base + shell    8. Formuliervelden
+   3. Hero            9. Notices (.note/.success/.error)
+   4. KPI-cards      10. Utilities (badge, spinner, bars, …)
+   5. Tabs           11. Print
+   6. Cards/tabellen 12. Responsive
+   ============================================================ */
+
+/* Fonts: headings Titillium Web, body/UI Montserrat (canon 1.2).
+   Toegestane vereenvoudiging: overal één van beide stacks. */
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* === 1. Tokens (identiek aan css/etruck-tokens.css) === */
+:root {
+  /* Core merkkleuren */
+  --eta-purple-900: #2e2343;
+  --eta-purple-soft: #41315f;
+  --eta-purple-deep: #221833;
+  --eta-yellow-500: #f9bc13;
+  --eta-orange-500: #f6a119;
+  --eta-white: #ffffff;
+  --eta-cream: #f7f3ec;
+
+  /* Afgeleide neutrale tokens */
+  --eta-bg-page: #f7f7f9;
+  --eta-bg-card: #ffffff;
+  --eta-bg-soft: #f4f4f6;
+  --eta-border-soft: #dedee6;
+  --eta-border-strong: #c9c8d3;
+  --eta-border-line: rgba(46, 35, 67, 0.12);
+  --eta-border-soft-purple: rgba(46, 35, 67, 0.08);
+  --eta-text-main: #1a1a1f;
+  --eta-text-subtle: #5a5764;
+  --eta-text-soft: rgba(46, 35, 67, 0.72);
+  --eta-text-muted: #7b7886;
+
+  /* Statuskleuren */
+  --eta-success: #1f7a46;
+  --eta-warning: #b26a00;
+  --eta-warning-bright: #f6a119;
+  --eta-danger: #b42318;
+  --eta-info: #475467;
+
+  /* Typografie */
+  --eta-font-heading: "Titillium Web", "Montserrat", Arial, sans-serif;
+  --eta-font-body: "Montserrat", "Nunito Sans", Arial, sans-serif;
+  --eta-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --eta-font-12: 12px;
+  --eta-font-14: 14px;
+  --eta-font-16: 16px;
+  --eta-font-18: 18px;
+  --eta-font-20: 20px;
+  --eta-font-24: 24px;
+  --eta-font-28: 28px;
+  --eta-font-36: 36px;
+  --eta-font-44: 44px;
+  --eta-weight-regular: 400;
+  --eta-weight-medium: 500;
+  --eta-weight-semibold: 600;
+  --eta-weight-bold: 700;
+
+  /* Spacing */
+  --eta-space-4: 4px;
+  --eta-space-8: 8px;
+  --eta-space-12: 12px;
+  --eta-space-16: 16px;
+  --eta-space-20: 20px;
+  --eta-space-24: 24px;
+  --eta-space-32: 32px;
+  --eta-space-40: 40px;
+  --eta-space-48: 48px;
+  --eta-space-64: 64px;
+
+  /* Radius */
+  --eta-radius-sm: 10px;
+  --eta-radius-md: 14px;
+  --eta-radius-lg: 18px;
+  --eta-radius-xl: 24px;
+
+  /* Shadows */
+  --eta-shadow-card: 0 8px 24px rgba(46, 35, 67, 0.08);
+  --eta-shadow-soft: 0 4px 12px rgba(46, 35, 67, 0.05);
+  --eta-shadow-hero: 0 24px 60px rgba(46, 35, 67, 0.16);
+
+  /* Layout — canon 1180px; brede data-dashboards mogen 1280px */
+  --eta-content-max: 1180px;
+  --eta-content-reading: 760px;
+  --eta-sidebar-width: 360px;
+  --eta-grid-gap: 24px;
+}
+
+/* === 2. Base + page shell === */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--eta-bg-page);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--eta-font-body);
+  color: var(--eta-purple-900);
+  font-size: 16px;
+  line-height: 1.55;
+  background: var(--eta-bg-page);
+  min-height: 100vh;
+}
+
+/* Optionele warme variant (precedent: laadpas-analyse).
+   Alleen bewust inzetten — canon-default is de vlakke achtergrond.
+html { background: var(--eta-cream); }
+body {
+  background:
+    radial-gradient(circle at top left, rgba(249, 188, 19, .18), transparent 28%),
+    radial-gradient(circle at top right, rgba(246, 161, 25, .15), transparent 24%),
+    linear-gradient(180deg, #fbf8f3 0%, #f3eee5 100%);
+}
+*/
+
+h1, h2, h3, h4 {
+  font-family: var(--eta-font-heading);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.container {
+  width: min(var(--eta-content-max), calc(100% - 32px));
+  margin: 0 auto;
+  padding: 0 0 var(--eta-space-64);
+}
+
+/* === 3. Hero / header ===
+   Tool-header: alleen het beeldmerk op witte tegel + eyebrow
+   "eTruck Academy®" + subline met tooltype. Geen volledig
+   woordmerk in de tool-header (canon 2.6). */
+.app-header {
+  width: min(var(--eta-content-max), calc(100% - 32px));
+  margin: var(--eta-space-32) auto var(--eta-space-24);
+}
+
+.hero-block {
+  position: relative;
+  overflow: hidden;
+  padding: var(--eta-space-32);
+  border-radius: var(--eta-radius-xl);
+  color: var(--eta-white);
+  background: linear-gradient(135deg, rgba(46, 35, 67, 0.98), rgba(65, 49, 95, 0.98));
+  box-shadow: var(--eta-shadow-hero);
+}
+
+.hero-block::after {
+  content: "";
+  position: absolute;
+  inset: auto -120px -120px auto;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249, 188, 19, .28), transparent 68%);
+  pointer-events: none;
+}
+
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--eta-space-16);
+  margin-bottom: var(--eta-space-20);
+}
+
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 6px;
+  box-shadow: inset 0 0 0 1px rgba(46, 35, 67, 0.08), 0 8px 20px rgba(0, 0, 0, .18);
+}
+
+.brand-lockup-text {
+  display: grid;
+  gap: 2px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--eta-white);
+}
+
+.brand-subline {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--eta-white);
+}
+
+h1 .muted-suffix {
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 400;
+}
+
+.sub {
+  margin: var(--eta-space-12) 0 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.sub strong {
+  color: var(--eta-white);
+  font-weight: 700;
+}
+
+/* === 4. KPI-cards ===
+   Volgorde: netto uitkomst eerst, daarna drivers (canon 4.8).
+   Niet 8 even zware KPI's zonder hiërarchie. */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--eta-space-16);
+  margin-bottom: var(--eta-space-32);
+}
+
+.kpi {
+  background: var(--eta-bg-card);
+  border: 1px solid var(--eta-border-soft-purple);
+  border-radius: var(--eta-radius-lg);
+  padding: var(--eta-space-20) var(--eta-space-24);
+  box-shadow: var(--eta-shadow-soft);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.kpi:hover {
+  box-shadow: var(--eta-shadow-card);
+  transform: translateY(-1px);
+}
+
+.kpi .lbl {
+  color: var(--eta-text-soft);
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-bottom: var(--eta-space-8);
+}
+
+.kpi .val {
+  font-family: var(--eta-font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--eta-purple-900);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi .hint {
+  font-size: 0.85rem;
+  color: var(--eta-text-soft);
+  margin-top: var(--eta-space-4);
+  line-height: 1.4;
+}
+
+/* === 5. Tabs === */
+.tabs {
+  display: flex;
+  gap: var(--eta-space-4);
+  border-bottom: 1px solid var(--eta-border-line);
+  margin: 0 0 var(--eta-space-24);
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: var(--eta-space-12) var(--eta-space-16);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--eta-text-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  transition: color .15s ease, border-color .15s ease;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: var(--eta-purple-900);
+}
+
+.tab.active {
+  color: var(--eta-purple-900);
+  border-bottom-color: var(--eta-yellow-500);
+}
+
+/* === 6. Cards, grids en tabellen === */
+.card {
+  background: var(--eta-bg-card);
+  border: 1px solid var(--eta-border-soft-purple);
+  border-radius: var(--eta-radius-xl);
+  padding: var(--eta-space-24) var(--eta-space-32);
+  margin-bottom: var(--eta-space-16);
+  box-shadow: var(--eta-shadow-soft);
+}
+
+/* Gele lijn onder de kaarttitel, zoals de TCO Calculator (besluit Johnny, 21 okt 2026). */
+.card > h2 {
+  margin: 0 0 var(--eta-space-8);
+  padding-bottom: var(--eta-space-8);
+  border-bottom: 2px solid var(--eta-yellow-500);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--eta-purple-900);
+  line-height: 1.15;
+}
+
+.card .desc {
+  color: var(--eta-text-soft);
+  font-size: 0.95rem;
+  margin-bottom: var(--eta-space-20);
+  line-height: 1.5;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--eta-space-16);
+}
+
+@media (max-width: 900px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Key-value blokjes (metadata, aannames, parameters) */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--eta-space-12);
+}
+
+.info-item {
+  min-width: 0;
+  border: 1px solid var(--eta-border-soft-purple);
+  border-radius: var(--eta-radius-md);
+  background: rgba(46, 35, 67, 0.025);
+  padding: var(--eta-space-12) var(--eta-space-16);
+}
+
+.info-label {
+  color: var(--eta-text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.info-value {
+  color: var(--eta-purple-900);
+  font-size: 0.98rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.info-value.mono {
+  font-family: var(--eta-font-mono);
+  font-size: 0.9rem;
+}
+
+/* Tabellen: wit, lichte borders, ruim — geen spreadsheet-look */
+table.simple {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+table.simple th {
+  text-align: left;
+  color: var(--eta-purple-900);
+  font-weight: 700;
+  padding: var(--eta-space-12) var(--eta-space-16);
+  border-bottom: 1px solid var(--eta-border-soft-purple);
+  font-size: 0.85rem;
+  background: rgba(46, 35, 67, 0.03);
+}
+
+/* De kolomkop in <thead> is donkerpaars met witte tekst, zoals de TCO Calculator
+   (besluit Johnny, 21 okt 2026). Rijkoppen in <tbody> houden de lichte stijl. */
+table.simple thead th {
+  color: var(--eta-white);
+  background: var(--eta-purple-900);
+  border-bottom: none;
+}
+
+table.simple th.num {
+  text-align: right;
+}
+
+table.simple td {
+  padding: var(--eta-space-12) var(--eta-space-16);
+  border-bottom: 1px solid var(--eta-border-soft-purple);
+  color: var(--eta-purple-900);
+}
+
+table.simple tr:last-child td {
+  border-bottom: none;
+}
+
+table.simple tr:hover td {
+  background: rgba(249, 188, 19, 0.05);
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* === 7. Buttons ===
+   Per scherm 1 dominante primaire CTA (geel), max 1 secundaire.
+   Korte werkwoordcopy: "Bereken uitkomst", "Download overzicht". */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--eta-space-8);
+  border: none;
+  border-radius: var(--eta-radius-md);
+  padding: 0 var(--eta-space-20);
+  min-height: 48px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.btn-primary {
+  background: var(--eta-yellow-500);
+  color: var(--eta-purple-900);
+  box-shadow: 0 4px 12px rgba(249, 188, 19, 0.25);
+}
+
+.btn-primary:hover {
+  background: #f2b400;
+  box-shadow: 0 8px 18px rgba(46, 35, 67, 0.10);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--eta-bg-card);
+  color: var(--eta-purple-900);
+  border: 1px solid var(--eta-border-line);
+}
+
+.btn-secondary:hover {
+  background: var(--eta-bg-soft);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--eta-danger);
+  border: 1px solid rgba(180, 35, 24, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(180, 35, 24, 0.08);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === 8. Formuliervelden ===
+   Labels altijd zichtbaar (niet alleen placeholder), velden
+   minimaal 44px hoog, focus duidelijk in merkstijl. */
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--eta-border-line);
+  border-radius: var(--eta-radius-md);
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--eta-purple-900);
+  background: var(--eta-white);
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 0;
+  border-color: var(--eta-yellow-500);
+  box-shadow: 0 0 0 4px rgba(249, 188, 19, 0.18);
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--eta-space-16);
+}
+
+label > span {
+  font-size: 0.95rem;
+  color: var(--eta-text-soft);
+  font-weight: 600;
+}
+
+/* === 9. Notices ===
+   Rustig: linksaccent + subtiel vlak. Rood alleen bij echte fout. */
+.note {
+  background: rgba(246, 161, 25, 0.10);
+  border-left: 3px solid var(--eta-orange-500);
+  padding: var(--eta-space-16) var(--eta-space-20);
+  border-radius: var(--eta-radius-md);
+  color: var(--eta-purple-900);
+  font-size: 0.95rem;
+  margin-bottom: var(--eta-space-24);
+  line-height: 1.5;
+}
+
+.success {
+  background: rgba(31, 122, 70, 0.08);
+  border-left: 3px solid var(--eta-success);
+  padding: var(--eta-space-16) var(--eta-space-20);
+  border-radius: var(--eta-radius-md);
+  color: var(--eta-purple-900);
+  font-size: 0.95rem;
+  margin-bottom: var(--eta-space-24);
+  line-height: 1.5;
+}
+
+.error {
+  background: rgba(180, 35, 24, 0.08);
+  border-left: 3px solid var(--eta-danger);
+  padding: var(--eta-space-16) var(--eta-space-20);
+  border-radius: var(--eta-radius-md);
+  color: var(--eta-danger);
+  font-size: 0.95rem;
+  margin-bottom: var(--eta-space-24);
+  line-height: 1.5;
+}
+
+/* === 10. Utilities === */
+
+/* Toolbar boven content (terug-link links, acties rechts) */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: var(--eta-space-12) 0 var(--eta-space-24);
+  gap: var(--eta-space-16);
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--eta-space-12);
+  font-size: 0.95rem;
+  color: var(--eta-text-soft);
+}
+
+.toolbar-right {
+  display: flex;
+  gap: var(--eta-space-8);
+  flex-wrap: wrap;
+}
+
+.back-link {
+  color: var(--eta-purple-900);
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back-link:hover {
+  color: var(--eta-orange-500);
+}
+
+/* Lege staat (nog geen data) */
+.empty-state {
+  text-align: center;
+  padding: var(--eta-space-48) var(--eta-space-24);
+  color: var(--eta-text-soft);
+}
+
+.empty-state h3 {
+  color: var(--eta-purple-900);
+  margin: 0 0 var(--eta-space-12);
+  font-size: 1.4rem;
+}
+
+/* Drag-drop uploadzone */
+.upload-zone {
+  border: 2px dashed var(--eta-border-line);
+  border-radius: var(--eta-radius-lg);
+  padding: var(--eta-space-32);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.upload-zone:hover,
+.upload-zone.is-dragging {
+  border-color: var(--eta-yellow-500);
+  background: rgba(249, 188, 19, 0.06);
+}
+
+.upload-zone input[type="file"] {
+  display: none;
+}
+
+.upload-zone-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: var(--eta-space-8);
+}
+
+.upload-zone-hint {
+  font-size: 0.92rem;
+  color: var(--eta-text-soft);
+}
+
+/* Gekleurde badge-pill (categorie, leverancier, status) */
+.badge {
+  display: inline-block;
+  padding: 3px var(--eta-space-12);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--eta-white);
+  background: var(--eta-purple-900);
+}
+
+/* Grafiek-legenda */
+.legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--eta-space-8);
+  font-size: 0.88rem;
+  color: var(--eta-text-soft);
+  margin-right: var(--eta-space-20);
+}
+
+.legend-pill .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* Laadindicator (korte acties liever geen spinner; canon 7.6) */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(46, 35, 67, 0.15);
+  border-top-color: var(--eta-yellow-500);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mini-staafjes in tabellen */
+.bar-chart-row {
+  display: flex;
+  align-items: center;
+  gap: var(--eta-space-12);
+  justify-content: flex-end;
+}
+
+.bar {
+  height: 5px;
+  background: var(--eta-yellow-500);
+  border-radius: 3px;
+  min-width: 1px;
+}
+
+/* Vaste hoogte voor chart-canvassen (Chart.js e.d.) */
+.chart-wrap {
+  position: relative;
+  height: 380px;
+}
+
+/* Monospace ID's / technische waarden */
+.mono {
+  font-family: var(--eta-font-mono);
+}
+
+/* === 11. Print (rapport-export via browser print-to-PDF) === */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  body {
+    color: #1a1a1f;
+    font-size: 11px;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print-hidden,
+  .toolbar,
+  .tabs,
+  .btn,
+  .back-link {
+    display: none !important;
+  }
+
+  .app-header,
+  .container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero-block {
+    color: #1a1a1f;
+    background: #ffffff !important;
+    box-shadow: none;
+    border: 1px solid #dedee6;
+    border-radius: 0;
+    padding: 0 0 12px;
+    margin-bottom: 16px;
+  }
+
+  .hero-block::after,
+  .brand-logo {
+    display: none;
+  }
+
+  .brand-lockup {
+    margin-bottom: 8px;
+  }
+
+  .eyebrow,
+  .brand-subline,
+  h1,
+  h1 .muted-suffix,
+  .sub,
+  .sub strong {
+    color: #1a1a1f !important;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .card,
+  .kpi,
+  .info-item {
+    box-shadow: none !important;
+    border-color: #dedee6;
+    border-radius: 0;
+    background: #ffffff !important;
+  }
+
+  .card {
+    padding: 14px 0;
+    margin-bottom: 12px;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .kpis {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .kpi {
+    padding: 10px;
+  }
+
+  .kpi:hover {
+    transform: none;
+  }
+
+  .kpi .val {
+    font-size: 18px;
+  }
+
+  .grid2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .chart-wrap {
+    height: 280px !important;
+  }
+
+  table.simple {
+    font-size: 9px;
+  }
+
+  table.simple th,
+  table.simple td {
+    padding: 4px 5px;
+  }
+
+  /* Rustig A4: de kolomkop print wit met een paarse lijn, net als de witte hero. */
+  table.simple thead th {
+    font-size: inherit;
+    color: #1a1a1f;
+    background: #ffffff !important;
+    border-bottom: 2px solid var(--eta-purple-900);
+  }
+
+  table.simple tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Geef rapportsecties deze class zodat ze niet over een
+     paginagrens breken */
+  .print-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* === 12. Responsive === */
+@media (max-width: 768px) {
+  .app-header {
+    margin: var(--eta-space-20) auto var(--eta-space-16);
+    width: calc(100% - 24px);
+  }
+
+  .hero-block {
+    padding: var(--eta-space-24);
+  }
+
+  .brand-logo {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .container {
+    width: calc(100% - 24px);
+    padding: 0 0 var(--eta-space-48);
+  }
+
+  .card {
+    padding: var(--eta-space-20);
+  }
+
+  .kpi {
+    padding: var(--eta-space-16) var(--eta-space-20);
+  }
+
+  .kpi .val {
+    font-size: 1.6rem;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* ============================================================
+   === 11. Werkbank-profiel (canon §17) ===
+   Dichte rekentools die een Excel-model vervangen.
+   Zet `class="werkbank"` op <body>. Alles hieronder werkt alleen
+   binnen dat profiel; de publiekstool-stijl blijft ongemoeid.
+   Merkkleuren, fonts en NL-cijfernotatie zijn identiek aan de canon.
+   ============================================================ */
+
+:root {
+  --eta-wb-content-max: 1500px;
+  --eta-wb-radius-sm: 6px;
+  --eta-wb-radius-card: 10px;
+  --eta-wb-font-sm: 13px;
+  --eta-wb-font-base: 15px;
+  --eta-wb-row-pad: 5px;
+  --eta-cell-input: #eef4e2;
+  --eta-cell-param: #fff7e8;
+  --eta-cell-readonly: #ffffff;
+  --eta-table-head: var(--eta-purple-900);
+  --eta-table-border: #e4e2de;
+  --eta-table-zebra: #faf8f4;
+  --eta-table-rowlabel: #faf9f7;
+  --eta-table-best: #e8f3dd;
+  --eta-series-diesel: #5a5a5a;
+  --eta-series-etruck: #f9bc13;
+  --eta-series-etruck-sub: #dc7800;
+  --eta-series-fcet: #5b9bd5;
+  --eta-series-fcet-sub: #2f6fa8;
+  --eta-series-neutral: #94a3b8;
+}
+
+body.werkbank {
+  font-size: var(--eta-wb-font-base);
+  padding-bottom: 36px; /* ruimte voor de vaste voetbalk */
+}
+
+body.werkbank .container,
+body.werkbank main {
+  width: min(var(--eta-wb-content-max), calc(100% - 32px));
+  margin: 0 auto;
+}
+
+/* --- 11.1 Appbalk: donkerpaarse werkbalk i.p.v. hero --- */
+.appbar {
+  display: flex;
+  align-items: center;
+  gap: var(--eta-space-24);
+  background: var(--eta-purple-900);
+  color: var(--eta-white);
+  padding: var(--eta-space-12) var(--eta-space-24);
+}
+
+.appbar .brand-lockup {
+  flex: 1;
+}
+
+.appbar .eyebrow {
+  color: var(--eta-white);
+}
+
+.appbar .brand-subline {
+  color: var(--eta-yellow-500);
+  font-size: var(--eta-font-12);
+}
+
+/* --- 11.2 Tabstrip op de appbalk --- */
+.tabs.tabs-bar {
+  background: var(--eta-purple-900);
+  border-bottom: none;
+  padding: 0 var(--eta-space-24);
+  margin: 0;
+  gap: 2px;
+}
+
+.tabs-bar .tab {
+  color: rgba(255, 255, 255, 0.72);
+  border-bottom-width: 3px;
+  padding: var(--eta-space-12) var(--eta-space-16);
+}
+
+.tabs-bar .tab:hover {
+  color: var(--eta-white);
+}
+
+.tabs-bar .tab.active {
+  color: var(--eta-yellow-500);
+  border-bottom-color: var(--eta-yellow-500);
+  font-weight: 700;
+}
+
+/* --- 11.3 Dichte card --- */
+.card.card-dense {
+  border-radius: var(--eta-wb-radius-card);
+  padding: var(--eta-space-16) var(--eta-space-20);
+}
+
+/* De gele lijn onder de kaarttitel zit al op `.card > h2` (besluit 21 okt 2026).
+   Hier alleen de compactere maatvoering. */
+.card.card-dense > h2 {
+  font-size: var(--eta-font-16);
+  margin-bottom: var(--eta-space-12);
+}
+
+/* --- 11.4 Invulvelden: celkleur draagt betekenis ---
+   groen  = de gebruiker vult dit in
+   amber  = beheerparameter (zelden aanraken)
+   wit    = uitkomst, niet invulbaar
+   Kleur is nooit de enige drager: het label zegt het ook. */
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: var(--eta-space-8) var(--eta-space-12);
+  align-items: center;
+}
+
+.fields label {
+  font-size: var(--eta-font-14);
+}
+
+.fields .unit {
+  font-size: var(--eta-font-12);
+  color: var(--eta-text-muted);
+  margin-left: var(--eta-space-4);
+}
+
+body.werkbank input,
+body.werkbank select,
+body.werkbank textarea {
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: var(--eta-wb-radius-sm);
+  font-size: var(--eta-font-14);
+}
+
+.cell-input {
+  background: var(--eta-cell-input);
+}
+
+.cell-param {
+  background: var(--eta-cell-param);
+}
+
+.cell-readonly {
+  background: var(--eta-cell-readonly);
+  color: var(--eta-text-subtle);
+}
+
+/* --- 11.5 Datatabel: dicht, veel jaren, cijfers rechts --- */
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--eta-wb-font-sm);
+}
+
+/* Tekst staat links en mag afbreken; een cijfer (.num) staat rechts en breekt niet (canon §17.4). */
+table.data th,
+table.data td {
+  border: 1px solid var(--eta-table-border);
+  padding: var(--eta-wb-row-pad) var(--eta-space-8);
+  text-align: left;
+  vertical-align: top;
+}
+
+table.data .num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+table.data th {
+  background: var(--eta-table-head);
+  color: var(--eta-white);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+table.data tbody tr:nth-child(even) td {
+  background: var(--eta-table-zebra);
+}
+
+table.data td.rowlabel {
+  font-weight: 600;
+  background: var(--eta-table-rowlabel);
+  text-align: left;
+}
+
+table.data td.best {
+  background: var(--eta-table-best);
+  font-weight: 700;
+}
+
+/* Rijkop in tbody: lichte rijkopstijl, niet de donkere kolomkop (canon §17.4). */
+table.data tbody th {
+  background: var(--eta-table-rowlabel);
+  color: var(--eta-text-main);
+  font-weight: 600;
+  text-align: left;
+  position: static;
+}
+
+/* Alles in de kolomkop is wit, ook een label of badge erin. */
+table.data thead th * {
+  color: inherit;
+}
+
+/* Lopende tekst in een dichte tabel mag afbreken en staat links (canon §17.4). */
+table.data th.tekst,
+table.data td.tekst {
+  white-space: normal;
+  text-align: left;
+}
+
+.tablewrap {
+  overflow-x: auto;
+}
+
+/* --- 11.6 Controleregel: laat de tool zijn eigen som tonen --- */
+.checkline {
+  background: rgba(249, 188, 19, 0.12);
+  border-left: 4px solid var(--eta-yellow-500);
+  padding: var(--eta-space-8) var(--eta-space-12);
+  border-radius: var(--eta-wb-radius-sm);
+  color: var(--eta-purple-900);
+  font-size: var(--eta-wb-font-sm);
+  line-height: 1.6;
+}
+
+/* --- 11.7 Vaste voetbalk met bron en versie --- */
+.appfooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--eta-purple-900);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11.5px;
+  padding: var(--eta-space-8) var(--eta-space-24);
+  text-align: center;
+  z-index: 10;
+}
+
+/* --- 11.8 Uitklapbaar beheerpaneel --- */
+.panel {
+  margin-bottom: var(--eta-space-12);
+}
+
+.panel summary {
+  cursor: pointer;
+  background: var(--eta-bg-card);
+  padding: var(--eta-space-12) var(--eta-space-16);
+  border-radius: var(--eta-wb-radius-card);
+  font-weight: 700;
+  font-size: var(--eta-font-14);
+  box-shadow: var(--eta-shadow-soft);
+}
+
+.panel[open] summary {
+  border-bottom: 2px solid var(--eta-yellow-500);
+  border-radius: var(--eta-wb-radius-card) var(--eta-wb-radius-card) 0 0;
+}
+
+.panel-body {
+  background: var(--eta-bg-card);
+  padding: var(--eta-space-16) var(--eta-space-20);
+  border-radius: 0 0 var(--eta-wb-radius-card) var(--eta-wb-radius-card);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: var(--eta-space-4) var(--eta-space-20);
+}
+
+@media (max-width: 900px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+
+  .appbar {
+    flex-wrap: wrap;
+    gap: var(--eta-space-12);
+  }
+
+  .appfooter {
+    position: static;
+  }
+
+  body.werkbank {
+    padding-bottom: 0;
+  }
+}
+
+@media print {
+  .appfooter,
+  .tabs-bar {
+    position: static;
+  }
+
+  table.data th {
+    position: static;
+  }
+}
+
+/* ============================================================
+   === 12. Huddle-widget (canon §18) ===
+   Beeldmerk, naam, één brede gele knop, regel over de geldigheid.
+   Voorbeeld: de widget van de laadpas-analyse (besluit Johnny 25-11-2026).
+   ============================================================ */
+
+.widget {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: var(--eta-space-16);
+  background: transparent;
+}
+
+/* Geen eigen kaartrand of schaduw: de les eromheen is de kaart. */
+.widget-kaart {
+  display: grid;
+  justify-items: center;
+  gap: var(--eta-space-16);
+  width: min(100%, 720px);
+  text-align: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.widget-logo {
+  width: 120px;
+  height: auto;
+  /* Het merkbestand is een jpg met witte achtergrond; zo valt het wit weg op elke lesachtergrond. */
+  mix-blend-mode: multiply;
+}
+
+.widget-titel {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--eta-text-soft);
+}
+
+.widget-knop {
+  justify-content: center;
+  width: 100%;
+  min-height: 64px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-radius: var(--eta-radius-lg);
+}
+
+.widget-geldig {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--eta-text-soft);
+}

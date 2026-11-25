@@ -6,7 +6,9 @@ Standalone HTML-tool die de levenscyclus-uitstoot van een dieseltruck vergelijkt
 
 ## Hoe het werkt
 
-- `index.html` — self-contained tool (HTML + inline CSS + inline JS + inline beeldmerk-SVG). Geen build-stap nodig.
+- `index.html` — de tool (HTML + tool-eigen CSS + inline JS). Laadt `css/` en `etruck-academy-beeldmerk.svg` uit dezelfde map. Geen build-stap nodig.
+- `css/etruck.css` + `css/etruck-tokens.css` — integrale kopie van de canon-CSS (etruck-canon). Niet aanpassen; ververs ze door opnieuw te kopiëren.
+- `tests/opmaak.test.mjs` — opmaaktoets (werkbank-profiel). Draaien met `node --test`.
 - `etruck-academy-factors.json` — CO₂-emissiefactoren, export uit [`@nts/params`](../nts-parameters-db). Tool fetcht dit bij laden met fallback op ingebouwde waarden.
 
 ## Factoren updaten (±1× per jaar)
@@ -32,7 +34,7 @@ De tool toont op de publieke pagina altijd de datum van de laatste NTS-export.
 
 ## Stijl & canon
 
-Volledig canonconform volgens `[[FORMAT - eTruck Academy Tool UI (Canon)]]` en `[[eTruck Academy brand kit]]` in de NTS Obsidian vault.
+Werkbank-profiel uit de etruck-canon (CANON.md §17): canon-CSS integraal in `css/`, `body.werkbank`, appbalk met beeldmerk, `table.data`, reekskleuren per aandrijving (§17.2); tool-eigen opmaak alleen met `--eta-*`-tokens.
 
 ## Changelog
 
